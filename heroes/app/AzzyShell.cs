@@ -5,14 +5,27 @@ using Commands;
 // A test hero
 public class AzzyShell : Hero
 {
-    string version = "0.0.1";
-    string shell = "AzzyShell";
-    string author = "Az Foxxo";
-    string description = "A shell to test the Heroes framework";
-
-    string prompt = "~";
+    private const string version = "0.0.1";
+    private const string shell = "AzzyShell";
+    private const string author = "Az Foxxo";
+    private const string description = "A shell to test the Heroes framework";
+    private const string prompt = "~";
 
     int ret = 0;
+    public static AzzyShell Instance;
+
+    public List<Variables> variables = new();
+
+    // Add shell variables and store a reference to the shell
+    public AzzyShell() {
+        variables.Add(new Variables("version", version, "String"));
+        variables.Add(new Variables("shell", shell, "String"));
+        variables.Add(new Variables("author", author, "String"));
+        variables.Add(new Variables("description", description, "String"));
+        variables.Add(new Variables("prompt", prompt, "String"));
+
+        Instance = this;
+    }
 
     public override void OnUpdate()
     {
@@ -24,6 +37,43 @@ public class AzzyShell : Hero
 
         // Check if any arguments were given
         if (args.Length < 1) return;
+
+        // Check not whitespace
+        if (args[0] == "") return;
+
+        // If $VARIABLE_NAME$ is in the input, replace it with the value of the variable from the variables list
+        for (int i = 0; i < args.Length; i++) {
+            if (args[i].StartsWith("$") && args[i].EndsWith("$")) {
+                string varName = args[i].Substring(1, args[i].Length - 2);
+                foreach (Variables var in variables) {
+                    if (var.name == varName) {
+                        args[i] = var.value;
+                    }
+                }
+            }
+        }
+        // Else if surrounded by ££, replace it with the variable name
+        for (int i = 0; i < args.Length; i++) {
+            if (args[i].StartsWith("£") && args[i].EndsWith("£")) {
+                string varName = args[i].Substring(1, args[i].Length - 2);
+                foreach (Variables var in variables) {
+                    if (var.name == varName) {
+                        args[i] = var.name;
+                    }
+                }
+            }
+        }
+        // Else if surrounded by #, replace it with the variable type
+        for (int i = 0; i < args.Length; i++) {
+            if (args[i].StartsWith("#") && args[i].EndsWith("#")) {
+                string varName = args[i].Substring(1, args[i].Length - 2);
+                foreach (Variables var in variables) {
+                    if (var.name == varName) {
+                        args[i] = var.type;
+                    }
+                }
+            }
+        }
 
         // Check if the first argument is a command
         switch (args[0])
@@ -76,6 +126,18 @@ public class AzzyShell : Hero
                 ret = new FizzBuzz().Execute(args);
                 break;
 
+            case "var":
+                ret = new Var().Execute(args);
+                break;
+
+            case "set":
+                ret = new Set().Execute(args);
+                break;
+
+            case "vars":
+                ret = new Vars().Execute(args);
+                break;
+
             default:
                 Print("Unknown command: " + args[0]);
                 ret = 1;
@@ -89,5 +151,5 @@ public class AzzyShell : Hero
         }
     }
 
-    private string GetCurrentLine() => Read(prompt);
+    private string GetCurrentLine() => Read(variables.Find(x => x.name == "prompt").value + " ");
 }

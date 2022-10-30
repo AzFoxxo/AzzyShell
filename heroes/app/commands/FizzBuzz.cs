@@ -20,11 +20,11 @@ public class FizzBuzz : Command
         }
 
         for (int i = 0; i < number; i++) {
-            var _string = "";
-            if (i % 3 == 0) _string += "Fizz";
-            if (i % 5 == 0) _string += "Buzz";
-            if (_string == "") _string = i.ToString();
-            Print(_string);
+            var output = "";
+            if (i % 3 == 0) output += "Fizz";
+            if (i % 5 == 0) output += "Buzz";
+            if (output == "") output = i.ToString();
+            Print(output);
         }
 
         // Return success
