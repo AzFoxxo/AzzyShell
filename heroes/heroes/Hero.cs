@@ -57,7 +57,7 @@ public class Hero : Common
         Heroes.Internal.HeroManager.MarkHeroesForRebuild();
 
         // If there are no more heroes, kill the game loop
-        if (Heroes.Internal.HeroManager.heroes.Count == 0) App.End();
+        if (Heroes.Internal.HeroManager.heroes.Count == 0) Application.Quit();
     }
 
     ///<summary>Set the hero to persistent</summary>

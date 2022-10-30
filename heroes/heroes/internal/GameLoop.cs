@@ -1,4 +1,5 @@
 namespace Heroes.Internal;
+using App.Internal;
 
 public class GameLoop
 {
@@ -9,7 +10,7 @@ public class GameLoop
     public void Enter()
     {
         // Loader code
-        GameCode.Loader.HeroesFSLoader.Load();
+        FSLoader.Load();
 
         // Create a copy of the list of heroes
         List<Hero> heroes = new(HeroManager.heroes);

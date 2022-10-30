@@ -1,0 +1,3 @@
+[submodule "Heroes"]
+	path = Heroes
+	url = https://github.com/AzFoxxo/Heroes.git

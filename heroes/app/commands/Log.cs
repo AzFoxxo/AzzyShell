@@ -1,16 +1,16 @@
-namespace GameCode.Commands;
+namespace App.Commands;
 
 using Heroes;
 
-public class Quit : Command
+public class Log : Command
 {
     public override int Execute(string[] args)
     {
         // Check if args given
-        if (CheckArgLength(args, 1) != 0) return 2;
+        if (CheckArgLength(args, 2) != 0) return 2;
 
-        // Quit the app
-        App.End();
+        // Log the message
+        Print(args[1]);
 
         // Return success
         return 0;

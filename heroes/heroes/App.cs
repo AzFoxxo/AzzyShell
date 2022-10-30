@@ -2,10 +2,10 @@ namespace Heroes;
 using Heroes.Internal;
 
 // Application class
-public static class App
+public static class Application
 {
     ///<summary>Quit the application.</summary>
-    public static void End() => GameLoop.running = false;
+    public static void Quit() => GameLoop.running = false;
 
     ///<summary>Restart the application.</summary>
     public static void Restart() => Program.gameLoop.Restart();

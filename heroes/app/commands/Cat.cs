@@ -1,4 +1,4 @@
-namespace GameCode.Commands;
+namespace App.Commands;
 
 using Heroes;
 
