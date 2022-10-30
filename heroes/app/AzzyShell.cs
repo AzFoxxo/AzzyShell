@@ -8,13 +8,15 @@ public class AzzyShell : Hero
     private const string version = "0.1.0";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
-    private const string description = "A simplke shell to test the Heroes framework.";
+    private const string description = "A simple shell to test the Heroes framework.";
     private const string prompt = "~";
 
-    int ret = 0;
+    int returnedCode;
     private static AzzyShell? instance;
 
     public List<Variables> variables = new();
+
+    private string[] args = new string[0];
 
     // Add shell variables and store a reference to the shell
     public override void OnEarlyStart() {
@@ -30,7 +32,7 @@ public class AzzyShell : Hero
     // Print the welcome message
     public override void OnStart() {
         // Run the welcome command
-        ret = new Welcome().Execute(new string[] { "welcome" });
+        returnedCode = new Welcome().Execute(new string[] { "welcome" });
     }
 
     public override void OnUpdate()
@@ -39,7 +41,7 @@ public class AzzyShell : Hero
         string input = GetCurrentLine();
 
         // Split the input into an array of strings
-        string[] args = input.Split(' ');
+        args = input.Split(' ');
 
         // Check if any arguments were given
         if (args.Length < 1) return;
@@ -47,6 +49,25 @@ public class AzzyShell : Hero
         // Check not whitespace
         if (args[0] == "") return;
 
+        // Translate the variable
+        VariableTranslation();
+        
+        // Find the command
+        CommandSwitch();
+
+        // Check if the command returned an error
+        if (returnedCode != 0)
+        {
+            Print("Command returned error code: " + returnedCode);
+        }
+    }
+
+    private string GetCurrentLine() => Read(variables.Find(x => x.name == "prompt").value + " ");
+
+    public static AzzyShell GetInstance() => instance!;
+
+    public void VariableTranslation()
+    {
         // If $VARIABLE_NAME$ is in the input, replace it with the value of the variable from the variables list
         for (int i = 0; i < args.Length; i++) {
             if (args[i].StartsWith("$") && args[i].EndsWith("$")) {
@@ -80,90 +101,52 @@ public class AzzyShell : Hero
                 }
             }
         }
+    }
 
+    public int CommandSwitch()
+    {
         // Check if the first argument is a command
         switch (args[0])
         {
             case "help":
-                ret = new Help().Execute(args);
-                break;
-
+                return new Help().Execute(args);
             case "quit":
-                ret = new Quit().Execute(args);
-                break;
-
+                return new Quit().Execute(args);
             case "pwd":
-                ret = new PWD().Execute(args);
-                break;
-
+                return new PWD().Execute(args);
             case "cd":
-                ret = new CD().Execute(args);
-                break;
-
+                return new CD().Execute(args);
             case "ls":
-                ret = new LS().Execute(args);
-                break;
-
+                return new LS().Execute(args);
             case "clear":
-                ret = new Clear().Execute(args);
-                break;
-
+                return new Clear().Execute(args);
             case "touch":
-                ret = new Touch().Execute(args);
-                break;
-
+                return new Touch().Execute(args);
             case "remove":
-                ret = new Remove().Execute(args);
-                break;
-
+                return new Remove().Execute(args);
             case "mkdir":
-                ret = new MKDir().Execute(args);
-                break;
-            
+                return new MKDir().Execute(args);
             case "log":
-                ret = new Log().Execute(args);
-                break;
-
+                return new Log().Execute(args);
             case "cat":
-                ret = new Cat().Execute(args);
-                break;
-
+                return new Cat().Execute(args);
             case "fizzbuzz":
-                ret = new FizzBuzz().Execute(args);
-                break;
-
+                return new FizzBuzz().Execute(args);
             case "var":
-                ret = new Var().Execute(args);
-                break;
-
+                return new Var().Execute(args);
             case "set":
-                ret = new Set().Execute(args);
-                break;
-
+                return new Set().Execute(args);
             case "vars":
-                ret = new Vars().Execute(args);
-                break;
-
+                return new Vars().Execute(args);
 
             // Azzy internal commands
             case "azzy_welcome":
-                ret = new Welcome().Execute(args);
-                break;
+                return new Welcome().Execute(args);
 
+            // If the command is not found, return 1 and print an error message
             default:
                 Print("Unknown command: " + args[0]);
-                ret = 1;
-                break;
-        }
-
-        // Check if the command returned an error
-        if (ret != 0)
-        {
-            Print("Command returned error code: " + ret);
+                return 1;
         }
     }
-
-    private string GetCurrentLine() => Read(variables.Find(x => x.name == "prompt").value + " ");
-
-    public static AzzyShell GetInstance() => instance!;
 }
