@@ -72,6 +72,10 @@ public class AzzyShell : Hero
                 ret = new Cat().Execute(args);
                 break;
 
+            case "fizzbuzz":
+                ret = new FizzBuzz().Execute(args);
+                break;
+
             default:
                 Print("Unknown command: " + args[0]);
                 ret = 1;

@@ -1,5 +1,7 @@
 namespace App.Commands;
 
+using Heroes;
+
 public class Help : Command
 {
     public override int Execute(string[] args)
@@ -20,6 +22,7 @@ public class Help : Command
         Print("remove - Remove a file or directory");
         Print("cat - Print the contents of a file");
         Print("log - Log a message to the console");
+        Print("fizzbuzz - Print the FizzBuzz sequence up to a given number");
 
         // Return success
         return 0;

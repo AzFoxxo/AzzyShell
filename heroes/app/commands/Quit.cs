@@ -10,7 +10,7 @@ public class Quit : Command
         if (CheckArgLength(args, 1) != 0) return 2;
 
         // Quit the app
-        App.End();
+        Application.Quit();
 
         // Return success
         return 0;
