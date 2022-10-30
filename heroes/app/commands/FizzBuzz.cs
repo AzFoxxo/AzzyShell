@@ -19,7 +19,7 @@ public class FizzBuzz : Command
             return 1;
         }
 
-        for (int i = 0; i < number; i++) {
+        for (int i = 0; i <= number; i++) {
             var output = "";
             if (i % 3 == 0) output += "Fizz";
             if (i % 5 == 0) output += "Buzz";

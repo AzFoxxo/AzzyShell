@@ -11,7 +11,7 @@ public class Vars : Command
 
         // List all the variables
         Print("Variables:");
-        foreach (Variables variable in AzzyShell.Instance.variables) {
+        foreach (Variables variable in AzzyShell.GetInstance().variables) {
             Print(variable.name + " - " + variable.type + " - " + variable.value);
         }
 

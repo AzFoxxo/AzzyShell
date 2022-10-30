@@ -16,7 +16,7 @@ public class Set : Command
 
         // Check if the variable name exists
         bool found = false;
-        foreach (Variables variable in AzzyShell.Instance.variables) {
+        foreach (Variables variable in AzzyShell.GetInstance().variables) {
             if (variable.name == name) {
                 found = true;
                 break;
@@ -58,7 +58,7 @@ public class Set : Command
         }
 
         // Create an array copy of the variables list
-        Variables[] variablesArrayCopy = AzzyShell.Instance.variables.ToArray();
+        Variables[] variablesArrayCopy = AzzyShell.GetInstance().variables.ToArray();
 
         // Get the index of the variable to be reassigned
         int index = 0;
@@ -73,7 +73,7 @@ public class Set : Command
         variablesArrayCopy[index] = new Variables(name, value, type);
 
         // Set the variables list to the array copy
-        AzzyShell.Instance.variables = new List<Variables>(variablesArrayCopy);
+        AzzyShell.GetInstance().variables = new List<Variables>(variablesArrayCopy);
 
         // Return 0 if successful
         return 0;

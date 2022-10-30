@@ -12,19 +12,19 @@ public class AzzyShell : Hero
     private const string prompt = "~";
 
     int ret = 0;
-    public static AzzyShell Instance;
+    private static AzzyShell? instance;
 
     public List<Variables> variables = new();
 
     // Add shell variables and store a reference to the shell
-    public AzzyShell() {
+    public override void OnEarlyStart() {
         variables.Add(new Variables("version", version, "String"));
         variables.Add(new Variables("shell", shell, "String"));
         variables.Add(new Variables("author", author, "String"));
         variables.Add(new Variables("description", description, "String"));
         variables.Add(new Variables("prompt", prompt, "String"));
 
-        Instance = this;
+        instance = this;
     }
 
     public override void OnUpdate()
@@ -152,4 +152,6 @@ public class AzzyShell : Hero
     }
 
     private string GetCurrentLine() => Read(variables.Find(x => x.name == "prompt").value + " ");
+
+    public static AzzyShell GetInstance() => instance!;
 }

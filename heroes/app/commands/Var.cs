@@ -24,7 +24,7 @@ public class Var : Command
         name = args[1];
 
         // Check if the variable name is already in use
-        foreach (Variables var in AzzyShell.Instance.variables) {
+        foreach (Variables var in AzzyShell.GetInstance().variables) {
             if (var.name == args[1]) {
                 Print("Variable name already in use");
                 return 1;
@@ -34,26 +34,26 @@ public class Var : Command
         if (args[2].StartsWith("\"") && args[2].EndsWith("\"")) {
             value = args[2].Substring(1, args[2].Length - 2);
             type = "String";
-            AzzyShell.Instance.variables.Add(new Variables(name, value, type));
+            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
         }
 
         // Check the variable is a number
         else if (int.TryParse(args[2], out int intValue)) {
             value = args[2];
             type = "Int";
-            AzzyShell.Instance.variables.Add(new Variables(name, value, type));
+            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
         }
         // Check the variable is a float
         else if (double.TryParse(args[2], out double floatValue)) {
             value = args[2];
             type = "Float";
-            AzzyShell.Instance.variables.Add(new Variables(name, value, type));
+            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
         }
         // Check the variable is a boolean
         else if (bool.TryParse(args[2], out bool boolValue)) {
             value = args[2];
             type = "Bool";
-            AzzyShell.Instance.variables.Add(new Variables(name, value, type));
+            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
         }
         // Unknown type
         else {
@@ -63,7 +63,7 @@ public class Var : Command
         }
 
         // Print all variables
-        foreach (Variables var in AzzyShell.Instance.variables) {
+        foreach (Variables var in AzzyShell.GetInstance().variables) {
             Print(var.name + " = " + var.value + " (" + var.type + ")");
         }
 
