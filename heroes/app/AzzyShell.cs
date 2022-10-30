@@ -5,10 +5,10 @@ using Commands;
 // A test hero
 public class AzzyShell : Hero
 {
-    private const string version = "0.0.1";
+    private const string version = "0.1.0";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
-    private const string description = "A shell to test the Heroes framework";
+    private const string description = "A simplke shell to test the Heroes framework.";
     private const string prompt = "~";
 
     int ret = 0;
@@ -25,6 +25,12 @@ public class AzzyShell : Hero
         variables.Add(new Variables("prompt", prompt, "String"));
 
         instance = this;
+    }
+
+    // Print the welcome message
+    public override void OnStart() {
+        // Run the welcome command
+        ret = new Welcome().Execute(new string[] { "welcome" });
     }
 
     public override void OnUpdate()
@@ -136,6 +142,12 @@ public class AzzyShell : Hero
 
             case "vars":
                 ret = new Vars().Execute(args);
+                break;
+
+
+            // Azzy internal commands
+            case "azzy_welcome":
+                ret = new Welcome().Execute(args);
                 break;
 
             default:
