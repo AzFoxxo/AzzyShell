@@ -1,6 +1,7 @@
 namespace App;
 using Heroes;
 using Commands;
+using System.Text.RegularExpressions;
 
 // A test hero
 public class AzzyShell : Hero
@@ -19,7 +20,8 @@ public class AzzyShell : Hero
     private string[] args = new string[0];
 
     // Add shell variables and store a reference to the shell
-    public override void OnEarlyStart() {
+    public override void OnEarlyStart()
+    {
         variables.Add(new Variables("version", version, "String"));
         variables.Add(new Variables("shell", shell, "String"));
         variables.Add(new Variables("author", author, "String"));
@@ -30,7 +32,8 @@ public class AzzyShell : Hero
     }
 
     // Print the welcome message
-    public override void OnStart() {
+    public override void OnStart()
+    {
         // Run the welcome command
         returnedCode = new Welcome().Execute(new string[] { "welcome" });
 
@@ -43,25 +46,42 @@ public class AzzyShell : Hero
         // Get the input
         string input = GetCurrentLine();
 
-        // Split the input into an array of strings
-        args = input.Split(' ');
+        // Split the input into several commands if there are multiple commands or a new line
+        string[] commands = input.Split(new string[] { "&&", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-        // Check if any arguments were given
-        if (args.Length < 1) return;
-
-        // Check not whitespace
-        if (args[0] == "") return;
-
-        // Translate the variable
-        VariableTranslation();
-        
-        // Find the command
-        CommandSwitch();
-
-        // Check if the command returned an error
-        if (returnedCode != 0)
+        // Loop through the commands
+        foreach (string command in commands)
         {
-            Print("Command returned error code: " + returnedCode);
+            // Delete any spaces at the start and end of the command
+            string trimmedCommand = command.Trim();      
+
+            // Split the command into arguments
+            args = Regex.Matches(trimmedCommand, @"[\""].+?[\""]|[^ ]+")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToArray();
+
+            // Remove all quotes from the arguments
+            for (int i = 0; i < args.Length; i++)
+            {
+                args[i] = args[i].Replace("\"", "");
+            }
+
+            // Check if any arguments were given
+            if (args.Length < 1) return;
+
+            // Check not whitespace
+            if (args[0] == "") return;
+
+            // Translate the variable
+            VariableTranslation();
+
+            // Find the command
+            CommandSwitch();
+
+            // Check if the command returned an error
+            if (returnedCode != 0) Print($"Command returned error code: '{returnedCode}'");
+            
         }
     }
 
@@ -72,33 +92,45 @@ public class AzzyShell : Hero
     public void VariableTranslation()
     {
         // If $VARIABLE_NAME$ is in the input, replace it with the value of the variable from the variables list
-        for (int i = 0; i < args.Length; i++) {
-            if (args[i].StartsWith("$") && args[i].EndsWith("$")) {
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("$") && args[i].EndsWith("$"))
+            {
                 string varName = args[i].Substring(1, args[i].Length - 2);
-                foreach (Variables var in variables) {
-                    if (var.name == varName) {
+                foreach (Variables var in variables)
+                {
+                    if (var.name == varName)
+                    {
                         args[i] = var.value;
                     }
                 }
             }
         }
         // Else if surrounded by ££, replace it with the variable name
-        for (int i = 0; i < args.Length; i++) {
-            if (args[i].StartsWith("£") && args[i].EndsWith("£")) {
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("£") && args[i].EndsWith("£"))
+            {
                 string varName = args[i].Substring(1, args[i].Length - 2);
-                foreach (Variables var in variables) {
-                    if (var.name == varName) {
+                foreach (Variables var in variables)
+                {
+                    if (var.name == varName)
+                    {
                         args[i] = var.name;
                     }
                 }
             }
         }
         // Else if surrounded by #, replace it with the variable type
-        for (int i = 0; i < args.Length; i++) {
-            if (args[i].StartsWith("#") && args[i].EndsWith("#")) {
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("#") && args[i].EndsWith("#"))
+            {
                 string varName = args[i].Substring(1, args[i].Length - 2);
-                foreach (Variables var in variables) {
-                    if (var.name == varName) {
+                foreach (Variables var in variables)
+                {
+                    if (var.name == varName)
+                    {
                         args[i] = var.type;
                     }
                 }
@@ -150,7 +182,7 @@ public class AzzyShell : Hero
 
             // If the command is not found, return 1 and print an error message
             default:
-                Print("Unknown command: " + args[0]);
+                Print($"Unknown command: `{args[0]}`");
                 return 1;
         }
     }

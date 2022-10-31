@@ -29,32 +29,22 @@ public class Set : Command
             return 1;
         }
 
-        // If the variable surrounded by quotes, remove them and set the value to the string between them and set the type to string
-        if (value.StartsWith("\"") && value.EndsWith("\"")) {
-            value = value.Substring(1, value.Length - 2);
-            type = "String";
-        }
-
         // Check the variable is a number
-        else if (int.TryParse(value, out int intValue)) {
+        if (int.TryParse(value, out int intValue)) {
             type = "Int";
         }
-        
+
         // Check the variable is a double
         else if (double.TryParse(value, out double doubleValue)) {
             type = "Double";
         }
-
         // Check the variable is a boolean
         else if (bool.TryParse(value, out bool boolValue)) {
             type = "Bool";
         }
-
-        // Unknown type
+        // Else it's a string
         else {
-            Print("Unknown type");
-            Print("Types: String use double quotes, Int, Double, Bool");
-            return 1;
+            type = "String";
         }
 
         // Create an array copy of the variables list

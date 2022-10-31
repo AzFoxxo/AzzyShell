@@ -30,15 +30,9 @@ public class Var : Command
                 return 1;
             }
         }
-        // If the variable surrounded by quotes, remove them and set the value to the string between them and set the type to string
-        if (args[2].StartsWith("\"") && args[2].EndsWith("\"")) {
-            value = args[2].Substring(1, args[2].Length - 2);
-            type = "String";
-            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
-        }
 
         // Check the variable is a number
-        else if (int.TryParse(args[2], out int intValue)) {
+        if (int.TryParse(args[2], out int intValue)) {
             value = args[2];
             type = "Int";
             AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
@@ -55,16 +49,11 @@ public class Var : Command
             type = "Bool";
             AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
         }
-        // Unknown type
+        // Is a string
         else {
-            Print("Unknown type");
-            Print("Types: String use double quotes, Int, Float, Bool");
-            return 1;
-        }
-
-        // Print all variables
-        foreach (Variables var in AzzyShell.GetInstance().variables) {
-            Print(var.name + " = " + var.value + " (" + var.type + ")");
+            value = args[2];
+            type = "String";
+            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
         }
 
         // Return 0 if successful
