@@ -53,7 +53,29 @@ public class AzzyShell : Hero
         foreach (string command in commands)
         {
             // Delete any spaces at the start and end of the command
-            string trimmedCommand = command.Trim();      
+            string trimmedCommand = command.Trim();
+
+            #region @Replaces@
+            // Replace @DOUBLE@ with a UUID
+            string doubleQuote = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@DOUBLE@", doubleQuote);
+
+            // Replace @AND@ with with a UUID
+            string and = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@AND@", and);
+
+            // Replace @NEWLINE@ with a UUID
+            string newline = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@NEWLINE@", newline);
+
+            // Replace @AT@ with a UUID
+            string at = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@AT@", at);
+
+            // Replace @TAB@ with a UUID
+            string tab = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@TAB@", tab);
+            #endregion
 
             // Split the command into arguments
             args = Regex.Matches(trimmedCommand, @"[\""].+?[\""]|[^ ]+")
@@ -65,6 +87,16 @@ public class AzzyShell : Hero
             for (int i = 0; i < args.Length; i++)
             {
                 args[i] = args[i].Replace("\"", "");
+            }
+
+            // Replace the UUIDs with the original characters
+            for (int i = 0; i < args.Length; i++)
+            {
+                args[i] = args[i].Replace(doubleQuote, "\"");
+                args[i] = args[i].Replace(and, "&&");
+                args[i] = args[i].Replace(newline, "\n");
+                args[i] = args[i].Replace(at, "@");
+                args[i] = args[i].Replace(tab, "\t");
             }
 
             // Check if any arguments were given
