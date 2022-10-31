@@ -33,6 +33,9 @@ public class AzzyShell : Hero
     public override void OnStart() {
         // Run the welcome command
         returnedCode = new Welcome().Execute(new string[] { "welcome" });
+
+        // Run the logo command
+        returnedCode = new Logo().Execute(new string[] { "logo" });
     }
 
     public override void OnUpdate()
@@ -138,6 +141,8 @@ public class AzzyShell : Hero
                 return new Set().Execute(args);
             case "vars":
                 return new Vars().Execute(args);
+            case "logo":
+                return new Logo().Execute(args);
 
             // Azzy internal commands
             case "azzy_welcome":
