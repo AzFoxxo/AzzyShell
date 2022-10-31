@@ -5,6 +5,8 @@ The Heroes framework can be found [here](https://github.com/azFoxxo/heroes).
 
 Note: The shell doesn't parse input into tokens and only does the absolute basics to work as this is solely designed to test the framework. 
 
+![alt](screenshot.png)
+
 Supported commands in shell:
 ```
 quit - Quit the app
@@ -23,3 +25,15 @@ set - Set a variable (must exist)
 var - Create a new variable
 vars - List all variables
 ```
+
+Additionally, the shell supports multiple commands using `&&` and defining and using variables.
+Using `#variable#` will return that variable's type.
+Using `$variable$` will return it's value.
+Using `£variable£` will return the name of the variable.
+
+Special characters are:
+`@DOUBLE@` for `"`
+`@AND@` for `&&`
+`@NEWLINE@` for `\n` (newline)
+`@TAB@` for `\t` (tab)
+`@AT@` for `@`
