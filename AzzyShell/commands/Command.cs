@@ -8,10 +8,14 @@ public class Command : Hero
 
     public virtual void PrintHelp(string[] args) => Print($"No help available for this command - {args[0]}");
 
-    public int CheckArgLength(string[] args, int length)
+    public int CheckArgLength(string[] args, int length, bool allowGreaterThanLength = false)
     {
         if (args.Length != length)
         {
+            // Allow commands to have more arguments than the minimum
+            if (allowGreaterThanLength && args.Length > length) return 0;
+
+            // Print error
             Print($"'{args[0]}' takes {length - 1} argument(s), not {args.Length - 1}");
             return 2; // Invalid arguments
         }

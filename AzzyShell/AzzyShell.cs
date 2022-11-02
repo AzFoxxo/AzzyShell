@@ -124,10 +124,11 @@ public class AzzyShell : Hero
         }
     }
 
-    private string GetCurrentLine() {
+    private string GetCurrentLine()
+    {
         // Convert string colour to heroes colour
         string colour = variables.Find(x => x.name == "colour").value;
-        
+
         // Try and parse the colour to a heroes colours
         if (!Enum.TryParse(colour, true, out Colours heroesColour))
         {
@@ -183,8 +184,16 @@ public class AzzyShell : Hero
 
             // If the command is not found, return 1 and print an error message
             default:
-                Print($"Failed to find the command `{args[0]}`", Colours.Red);
-                return 1;
+
+                // Launch the command in system shell
+                returnedCode = new External().Execute(args);
+
+                // System not external command
+                if (returnedCode == 0)
+                {
+                    Print($"Failed to find the command `{args[0]}`", Colours.Red);
+                    return 1;
+                } else return returnedCode;
         }
     }
 }
