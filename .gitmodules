@@ -1,3 +1,3 @@
 [submodule "Heroes"]
 	path = Heroes
-	url = https://github.com/AzFoxxo/Heroes.git
+	 git submodule update --init --recursive
