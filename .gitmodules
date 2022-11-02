@@ -1,3 +1,0 @@
-[submodule "Heroes"]
-	path = Heroes
-	 git submodule update --init --recursive
