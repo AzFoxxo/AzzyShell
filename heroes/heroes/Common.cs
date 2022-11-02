@@ -6,6 +6,16 @@ public class Common
     ///<param name="message">The message to print.</param>
     protected static void Print(string text) => Console.WriteLine(text);
 
+    ///<summary>Print a message to the console in a colour.</summary>
+    ///<param name="message">The message to print.</param>
+    ///<param name="colour">The colour to print the message in.</param>
+    protected static void Print(string text, Colours colour)
+    {
+        Console.ForegroundColor = Colour.Convert(colour);
+        Console.WriteLine(text);
+        Console.ResetColor();
+    }
+
     ///<summary>Print a message to the console on line.</summary>
     ///<param name="message">The message to print.</param>
     protected static void PrintPrompt(string text) => Console.Write(text);

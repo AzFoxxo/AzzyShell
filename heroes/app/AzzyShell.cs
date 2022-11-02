@@ -170,7 +170,7 @@ public class AzzyShell : Hero
 
             // If the command is not found, return 1 and print an error message
             default:
-                Print($"Failed to find the command `{args[0]}`");
+                Print($"Failed to find the command `{args[0]}`", Colours.Red);
                 return 1;
         }
     }
