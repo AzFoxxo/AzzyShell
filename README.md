@@ -40,3 +40,5 @@ Special characters are:
 `@NEWLINE@` for `\n` (newline)
 `@TAB@` for `\t` (tab)
 `@AT@` for `@`
+
+Use `!` at the start of the command to find a program installed on the system.
