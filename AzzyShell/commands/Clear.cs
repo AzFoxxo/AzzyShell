@@ -12,8 +12,21 @@ public class Clear : Command
         // Translate variables
         args = VariableTranslation(args);
 
-        // List all the directories in the current directory
-        Console.Clear();
+        // Clear the console
+        // Check for errors (shouldn't be any)
+        try
+        {
+            Console.Clear();
+        }
+        catch (Exception e)
+        {
+            // Print the error
+            Print($"Exception occurred while clearing the console", Colours.Red);
+            Print(e.Message, Colours.Red);
+
+            // Return error - 454 for no command
+            return 454; // special code for dotnet command failure
+        }
 
 
         // Return success
