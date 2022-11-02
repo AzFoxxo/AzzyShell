@@ -28,6 +28,7 @@ public class AzzyShell : Hero
         variables.Add(new Variables("description", description, "String"));
         variables.Add(new Variables("prompt", prompt, "String"));
         variables.Add(new Variables("returnedCode", returnedCode.ToString(), "Int"));
+        variables.Add(new Variables("colour", "Cyan", "String"));
 
         instance = this;
     }
@@ -123,7 +124,19 @@ public class AzzyShell : Hero
         }
     }
 
-    private string GetCurrentLine() => Read(variables.Find(x => x.name == "prompt").value + " ");
+    private string GetCurrentLine() {
+        // Convert string colour to heroes colour
+        string colour = variables.Find(x => x.name == "colour").value;
+        
+        // Try and parse the colour to a heroes colours
+        if (!Enum.TryParse(colour, true, out Colours heroesColour))
+        {
+            // If it fails, set the colour to white
+            heroesColour = Colours.Red;
+        }
+
+        return Read(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
+    }
 
     public static AzzyShell GetInstance() => instance!;
     public int CommandSwitch()
