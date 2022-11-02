@@ -9,6 +9,9 @@ public class Remove : Command
         // Check if args given
         if (CheckArgLength(args, 2) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // Flags
         bool file = false;
         bool dir = false;

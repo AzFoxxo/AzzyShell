@@ -9,6 +9,9 @@ public class Cat : Command
         // Check if args given
         if (CheckArgLength(args, 2) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // Check if the file exists
         if (!File.Exists(args[1]))
         {

@@ -9,6 +9,9 @@ public class LS : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // List all the directories in the current directory
         Print("Directories:");
         foreach (string dir in Directory.GetDirectories(Directory.GetCurrentDirectory()))

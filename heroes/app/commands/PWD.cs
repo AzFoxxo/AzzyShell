@@ -9,6 +9,9 @@ public class PWD : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // Get the current directory checking for errors
         var dir = Directory.GetCurrentDirectory();
         if (dir == null)

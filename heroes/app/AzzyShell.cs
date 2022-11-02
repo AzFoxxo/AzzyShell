@@ -105,9 +105,6 @@ public class AzzyShell : Hero
             // Check not whitespace
             if (args[0] == "") return;
 
-            // Translate the variable
-            VariableTranslation();
-
             // Find the command
             CommandSwitch();
 
@@ -120,56 +117,6 @@ public class AzzyShell : Hero
     private string GetCurrentLine() => Read(variables.Find(x => x.name == "prompt").value + " ");
 
     public static AzzyShell GetInstance() => instance!;
-
-    public void VariableTranslation()
-    {
-        // If $VARIABLE_NAME$ is in the input, replace it with the value of the variable from the variables list
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i].StartsWith("$") && args[i].EndsWith("$"))
-            {
-                string varName = args[i].Substring(1, args[i].Length - 2);
-                foreach (Variables var in variables)
-                {
-                    if (var.name == varName)
-                    {
-                        args[i] = var.value;
-                    }
-                }
-            }
-        }
-        // Else if surrounded by ££, replace it with the variable name
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i].StartsWith("£") && args[i].EndsWith("£"))
-            {
-                string varName = args[i].Substring(1, args[i].Length - 2);
-                foreach (Variables var in variables)
-                {
-                    if (var.name == varName)
-                    {
-                        args[i] = var.name;
-                    }
-                }
-            }
-        }
-        // Else if surrounded by #, replace it with the variable type
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i].StartsWith("#") && args[i].EndsWith("#"))
-            {
-                string varName = args[i].Substring(1, args[i].Length - 2);
-                foreach (Variables var in variables)
-                {
-                    if (var.name == varName)
-                    {
-                        args[i] = var.type;
-                    }
-                }
-            }
-        }
-    }
-
     public int CommandSwitch()
     {
         // Check if the first argument is a command

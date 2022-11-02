@@ -9,6 +9,9 @@ public class Vars : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // List all the variables
         Print("Variables:");
         foreach (Variables variable in AzzyShell.GetInstance().variables) {

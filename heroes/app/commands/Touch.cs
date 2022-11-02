@@ -9,6 +9,9 @@ public class Touch : Command
         // Check if args given
         if (CheckArgLength(args, 2) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // Create the file
         File.Create(args[1]);
 

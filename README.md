@@ -27,9 +27,10 @@ vars - List all variables
 ```
 
 Additionally, the shell supports multiple commands using `&&` and defining and using variables.
-Using `#variable#` will return that variable's type.
-Using `$variable$` will return it's value.
-Using `£variable£` will return the name of the variable.
+Using `[variable]` will return that variable's type.
+Using `{variable}` will return it's value.
+Using `(variable)` will return the name of the variable.
+Using `<variable>` will return the index of the variable.
 
 Special characters are:
 `@DOUBLE@` for `"`

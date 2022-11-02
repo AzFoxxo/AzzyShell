@@ -9,6 +9,9 @@ public class Var : Command
         // Check if args given
         if (CheckArgLength(args, 3) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // Flags for type, value and name
         string name = "";
         string value = "";

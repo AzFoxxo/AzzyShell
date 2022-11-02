@@ -9,6 +9,9 @@ public class FizzBuzz : Command
         // Check if args given
         if (CheckArgLength(args, 2) != 0) return 2;
 
+        // Translate variables
+        args = VariableTranslation(args);
+
         // Try to parse the number
         if (!int.TryParse(args[1], out int number))
         {
