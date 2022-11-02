@@ -177,6 +177,8 @@ public class AzzyShell : Hero
                 return new Vars().Execute(args);
             case "logo":
                 return new Logo().Execute(args);
+            case "hacker":
+                return new Hacker().Execute(args);
 
             // Azzy internal commands
             case "azzy_welcome":

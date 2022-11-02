@@ -29,6 +29,9 @@ public class Help : Command
         Print("set - Set a variable (must exist)");
         Print("var - Create a new variable");
         Print("vars - List all variables");
+        Print("logo - Print the Azzy logo");
+        Print("hacker - Print 0 and 1 in a hacker style");
+
 
         // Return success
         return 0;
