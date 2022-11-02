@@ -6,13 +6,13 @@ using System.Text.RegularExpressions;
 // A test hero
 public class AzzyShell : Hero
 {
-    private const string version = "0.1.0";
+    private const string version = "0.1.1";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
     private const string description = "A simple shell to test the Heroes framework.";
-    private const string prompt = "~";
+    private const string prompt = "Azzy~";
 
-    int returnedCode;
+    int returnedCode = 0;
     private static AzzyShell? instance;
 
     public List<Variables> variables = new();
@@ -27,6 +27,7 @@ public class AzzyShell : Hero
         variables.Add(new Variables("author", author, "String"));
         variables.Add(new Variables("description", description, "String"));
         variables.Add(new Variables("prompt", prompt, "String"));
+        variables.Add(new Variables("returnedCode", returnedCode.ToString(), "Int"));
 
         instance = this;
     }
@@ -105,12 +106,20 @@ public class AzzyShell : Hero
             // Check not whitespace
             if (args[0] == "") return;
 
-            // Find the command
-            CommandSwitch();
+            // Find "returnedCode" variable and update it
+            Variables[] variablesArray = variables.ToArray();
+            for (int i = 0; i < variablesArray.Length; i++)
+            {
+                if (variablesArray[i].name == "returnedCode")
+                {
+                    variablesArray[i].value = returnedCode.ToString();
+                    variables[i] = variablesArray[i];
+                    break;
+                }
+            }
 
-            // Check if the command returned an error
-            if (returnedCode != 0) Print($"Command returned error code: '{returnedCode}'");
-            
+            // Find the command
+            returnedCode = CommandSwitch();
         }
     }
 
@@ -161,7 +170,7 @@ public class AzzyShell : Hero
 
             // If the command is not found, return 1 and print an error message
             default:
-                Print($"Unknown command: `{args[0]}`");
+                Print($"Failed to find the command `{args[0]}`");
                 return 1;
         }
     }
