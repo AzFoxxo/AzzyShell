@@ -169,8 +169,8 @@ public class AzzyShell : Hero
                 return new Cat().Execute(args);
             case "fizzbuzz":
                 return new FizzBuzz().Execute(args);
-            case "var":
-                return new Var().Execute(args);
+            case "vars":
+                return new Vars().Execute(args);
             case "set":
                 return new Set().Execute(args);
             case "logo":
