@@ -54,4 +54,28 @@ public class Common
         // Return the input (check if the input is null or empty)
         return Console.ReadLine() ?? "";
     }
+    ///<summary>Print a message to the console in gay colours.</summary>
+    ///<param name="message">The message to print.</param>
+    protected static void GayPrint(string message)
+    {
+        // Create a new rainbow color
+        var gayColours = new Colours[] { Colours.Red, Colours.Magenta, Colours.Blue, Colours.Cyan, Colours.Green, Colours.Yellow };
+
+        // Index of the current color
+        int colorIndex = 0;
+
+        // Loop through each character in the message
+        foreach (char c in message)
+        {
+            // Print the character in the next color
+            PrintPrompt(c.ToString(), gayColours[colorIndex]);
+
+            // Increase the index (looping back to zero at the end)
+            colorIndex++;
+            if (colorIndex >= gayColours.Length) colorIndex = 0;
+        }
+
+        // Print a new line
+        Print("");
+    }
 }
