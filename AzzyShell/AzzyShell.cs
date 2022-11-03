@@ -179,6 +179,8 @@ public class AzzyShell : Hero
                 return new Logo().Execute(args);
             case "hacker":
                 return new Hacker().Execute(args);
+            case "gaytext":
+                return new GayText().Execute(args);
 
             // Azzy internal commands
             case "azzy_welcome":

@@ -26,6 +26,7 @@ var - Create a new variable
 vars - List all variables
 logo - Print the Azzy logo
 hacker - Print 0 and 1 in a hacker style
+gaytext - Print a message in gay colours
 ```
 
 Additionally, the shell supports multiple commands using `&&` and defining and using variables.

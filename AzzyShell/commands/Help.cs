@@ -31,6 +31,7 @@ public class Help : Command
         Print("vars - List all variables");
         Print("logo - Print the Azzy logo");
         Print("hacker - Print 0 and 1 in a hacker style");
+        Print("gaytext - Print a message in gay colours");
 
 
         // Return success
