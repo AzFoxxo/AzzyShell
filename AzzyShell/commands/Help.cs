@@ -26,8 +26,7 @@ public class Help : Command
         Print("cat - Print the contents of a file");
         Print("log - Log a message to the console");
         Print("fizzbuzz - Print the FizzBuzz sequence up to a given number");
-        Print("set - Set a variable (must exist)");
-        Print("var - Create a new variable");
+        Print("set - Set a variable");
         Print("vars - List all variables");
         Print("logo - Print the Azzy logo");
         Print("hacker - Print 0 and 1 in a hacker style");

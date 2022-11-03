@@ -173,8 +173,6 @@ public class AzzyShell : Hero
                 return new Var().Execute(args);
             case "set":
                 return new Set().Execute(args);
-            case "vars":
-                return new Vars().Execute(args);
             case "logo":
                 return new Logo().Execute(args);
             case "hacker":

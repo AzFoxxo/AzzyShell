@@ -26,12 +26,6 @@ public class Set : Command
             }
         }
 
-        // If the variable name doesn't exist, return an error
-        if (!found) {
-            Print("Variable name doesn't exist, reassign of non-existent variable not allowed!");
-            return 1;
-        }
-
         // Check the variable is a number
         if (int.TryParse(value, out int intValue)) {
             type = "Int";
@@ -48,6 +42,12 @@ public class Set : Command
         // Else it's a string
         else {
             type = "String";
+        }
+
+        // If the variable name doesn't exist, append the variable to the variables list
+        if (!found) {
+            AzzyShell.GetInstance().variables.Add(new Variables(name, value, type));
+            return 0;
         }
 
         // Create an array copy of the variables list
