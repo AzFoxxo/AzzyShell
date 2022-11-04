@@ -13,10 +13,10 @@ public class Welcome : Command
         args = VariableTranslation(args);
 
         // Print welcome message
-        Print($"Welcome {System.Environment.UserName}!");
-        Print($"You are using {AzzyShell.GetInstance().variables[1].value} version {AzzyShell.GetInstance().variables[0].value} by {AzzyShell.GetInstance().variables[2].value}.");
+        PrintPrompt($"Welcome "); PrintPrompt(Environment.UserName, Colours.Green); Print("!");
+        PrintPrompt("You are using "); GayPrint($"{AzzyShell.GetInstance().variables[1].value} ", newline: false); PrintPrompt($"({AzzyShell.GetInstance().variables[0].value})", Colours.DarkBlue); PrintPrompt(" by "); PrintPrompt($"{AzzyShell.GetInstance().variables[2].value}", Colours.Blue); Print(".");
         Print(AzzyShell.GetInstance().variables[3].value);
-        Print("Type 'help' to get started.");
+        PrintPrompt("Type"); PrintPrompt(" 'help' ", Colours.Magenta); Print("to get started.");
 
         // Return success
         return 0;
