@@ -40,7 +40,6 @@ public class External : Command
                 // Return error - 455 for no command
                 return 455; // special code for external command failure
             }
-
         }
 
         // Return success

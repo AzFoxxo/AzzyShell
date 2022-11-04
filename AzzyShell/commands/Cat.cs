@@ -7,25 +7,36 @@ public class Cat : Command
     public override int Execute(string[] args)
     {
         // Check if args given
-        if (CheckArgLength(args, 2) != 0) return 2;
+        if (CheckArgLength(args, 2, allowGreaterThanLength: true) != 0) return 2;
 
         // Translate variables
         args = VariableTranslation(args);
 
+        // Counter
+        int i = 1;
+
         // Check if the file exists
-        if (!File.Exists(args[1]))
+        foreach (var file in args.Skip(1))
         {
-            Print("File not found");
-            return 1;
-        }
+            // Increment counter
+            i++;
 
-        // Read the file
-        string[] lines = File.ReadAllLines(args[1]);
+            // Check if the file exists
+            if (!File.Exists(file))
+            {
+                Print($"File not found {i}", Colours.Red);
+                return 1;
+            }
 
-        // Print the file
-        foreach (string line in lines)
-        {
-            Print(line);
+            // Read the file
+            string[] lines = File.ReadAllLines(file);
+
+            // Print the file
+            Print($"{file}:", Colours.Blue);
+            foreach (string line in lines)
+            {
+                Print(line, Colours.Yellow);
+            }
         }
 
         // Return success
