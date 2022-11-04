@@ -56,7 +56,7 @@ public class Common
     }
     ///<summary>Print a message to the console in gay colours.</summary>
     ///<param name="message">The message to print.</param>
-    protected static void GayPrint(string message)
+    protected static void GayPrint(string message, bool newline = true)
     {
         // Create a new rainbow color
         var gayColours = new Colours[] { Colours.Red, Colours.Magenta, Colours.Blue, Colours.Cyan, Colours.Green, Colours.Yellow };
@@ -76,6 +76,6 @@ public class Common
         }
 
         // Print a new line
-        Print("");
+        if (newline) Print("");
     }
 }
