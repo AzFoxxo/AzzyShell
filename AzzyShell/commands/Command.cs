@@ -6,7 +6,7 @@ public class Command : Hero
 {
     public virtual int Execute(string[] args) => throw new NotImplementedException();
 
-    public virtual void PrintHelp(string[] args) => Print($"No help available for this command - {args[0]}");
+    public virtual void PrintHelp(string[] args) => Print($"No help available for this command - {args[0]}", Colours.Red);
 
     public int CheckArgLength(string[] args, int length, bool allowGreaterThanLength = false)
     {
@@ -16,7 +16,7 @@ public class Command : Hero
             if (allowGreaterThanLength && args.Length > length) return 0;
 
             // Print error
-            Print($"'{args[0]}' takes {length - 1} argument(s), not {args.Length - 1}");
+            Print($"'{args[0]}' takes {length - 1} argument(s), not {args.Length - 1}", Colours.Red);
             return 2; // Invalid arguments
         }
         else
@@ -86,7 +86,7 @@ public class Command : Hero
                         break;
                     }
                 }
-                // Replace the variable with the value
+                // Replace the variable with it's value, type, name or index
                 args[i] = args[i].Replace($"{opening}{variable}{closing}", variableInfo);
             }
         }
