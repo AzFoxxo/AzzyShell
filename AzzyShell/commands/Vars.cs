@@ -13,7 +13,6 @@ public class Vars : Command
         args = VariableTranslation(args);
 
         // List all the variables
-        Print("Variables:");
         foreach (Variables variable in AzzyShell.GetInstance().variables) {
             // Is string
             bool isString = false;
