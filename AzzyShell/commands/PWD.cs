@@ -21,7 +21,7 @@ public class PWD : Command
         }
 
         // Print the current directory
-        Print(dir);
+        Print(dir, Colours.Blue);
 
 
         // Return success
