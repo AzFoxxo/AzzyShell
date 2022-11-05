@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 // A test hero
 public class AzzyShell : Hero
 {
-    private const string version = "1.0.0";
+    private const string version = "1.0.1";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
     private const string description = "A simple shell to test the Heroes framework.";

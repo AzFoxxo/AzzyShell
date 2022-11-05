@@ -38,8 +38,8 @@ public class LS : Command
         // List all the directories in the current directory
         foreach (var dir in Directory.GetDirectories(currentDirectory))
         {
-            var directory = dir.Replace(currentDirectory, "").Remove(0, 1) + "/";
-            PrintPrompt($"{directory}, ", Colours.Blue);
+            // Print the directory name
+            PrintPrompt(Path.GetFileName(dir) + ", ", Colours.Blue);
         }
 
         // New line
