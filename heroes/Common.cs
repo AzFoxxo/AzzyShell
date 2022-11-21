@@ -1,10 +1,12 @@
+using Heroes.ECS;
+
 namespace Heroes;
 
-public class Common
+public class Common : ComponentSystem
 {
     ///<summary>Print a message to the console.</summary>
     ///<param name="message">The message to print.</param>
-    protected static void Print(string text) => Console.WriteLine(text);
+    protected static void Print(object text) => Console.WriteLine(text);
 
     ///<summary>Print a message to the console in a colour.</summary>
     ///<param name="message">The message to print.</param>

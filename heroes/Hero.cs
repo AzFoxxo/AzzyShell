@@ -70,5 +70,10 @@ public class Hero : Common
     ///<param name="hero">The class which derives from hero to get the persistence of</param>
     ///<returns>Whether the hero is persistent</returns>
     public static bool IsPersistent(Hero hero) => hero.persistent;
+    
+    /// <summary> Returns the printable representation. </summary>
+    public override string ToString() => GetType().Name;
 
+    // When printing the hero, print the printable representation
+    public static implicit operator string(Hero hero) => hero.ToString();
 }
