@@ -19,6 +19,8 @@ public class AzzyShell : Hero
 
     private string[] args = new string[0];
 
+    public string historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".history.azzy");
+
     // Add shell variables and store a reference to the shell
     public override void OnEarlyStart()
     {
@@ -41,6 +43,13 @@ public class AzzyShell : Hero
 
         // Run the logo command
         returnedCode = new Logo().Execute(new string[] { "logo" });
+
+        // Check if the history file exists in the home directory
+        if (!File.Exists(historyFile))
+        {
+            // Create the history file
+            File.Create(historyFile);
+        }
     }
 
     public override void OnUpdate()
@@ -136,7 +145,13 @@ public class AzzyShell : Hero
             heroesColour = Colours.Red;
         }
 
-        return Read(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
+        // Read the current line
+        string input = Read(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
+
+        // Add the line to the history file
+        File.AppendAllText(historyFile, input + "\n");
+
+        return input;
     }
 
     public static AzzyShell GetInstance() => instance!;
@@ -179,6 +194,8 @@ public class AzzyShell : Hero
                 return new Hacker().Execute(args);
             case "gaytext":
                 return new GayText().Execute(args);
+            case "history":
+                return new History().Execute(args);
 
             // Azzy internal commands
             case "azzy_welcome":
