@@ -4,9 +4,10 @@ using Commands;
 using System.Text.RegularExpressions;
 
 // A test hero
+[AutoInitialise]
 public class AzzyShell : Hero
 {
-    private const string version = "1.0.5";
+    private const string version = "1.1.0";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
     private const string description = "A simple shell to test the Heroes framework.";
