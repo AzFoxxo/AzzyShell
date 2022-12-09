@@ -19,11 +19,11 @@ public class Vars : Command
             if (variable.type == "String") isString = true; else isString = false;
             
             // Print the variable index in the list, the name, the value and the type
-            PrintPrompt($"{AzzyShell.GetInstance().variables.IndexOf(variable)}: ", Colours.Yellow);
-            PrintPrompt($"{variable.type} ", Colours.DarkRed);
-            PrintPrompt($"{variable.name} ", Colours.Green);
-            PrintPrompt($"= ", Colours.White);
-            if (isString) Print($" \"{variable.value}\"", Colours.Blue); else Print($" {variable.value}", Colours.Blue);
+            Print($"{AzzyShell.GetInstance().variables.IndexOf(variable)}: ", Colours.Yellow);
+            Print($"{variable.type} ", Colours.DarkRed);
+            Print($"{variable.name} ", Colours.Green);
+            Print($"= ", Colours.White);
+            if (isString) PrintLine($" \"{variable.value}\"", Colours.Blue); else PrintLine($" {variable.value}", Colours.Blue);
         }
 
         // Return 0 if successful

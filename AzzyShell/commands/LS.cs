@@ -21,7 +21,7 @@ public class LS : Command
             // Check if directory exists
             if (!Directory.Exists(args[1]))
             {
-                Print("Directory does not exist!", Colours.Red);
+                PrintLine("Directory does not exist!", Colours.Red);
                 return 1;
             }
 
@@ -31,7 +31,7 @@ public class LS : Command
         // Check for too many arguments
         else if (args.Length > 2)
         {
-            Print($"Provide only argument (directory) not {args.Length-1}", Colours.Red);
+            PrintLine($"Provide only argument (directory) not {args.Length-1}", Colours.Red);
             return 2;
         }
 
@@ -39,21 +39,21 @@ public class LS : Command
         foreach (var dir in Directory.GetDirectories(currentDirectory))
         {
             // Print the directory name
-            PrintPrompt(Path.GetFileName(dir) + ", ", Colours.Blue);
+            Print(Path.GetFileName(dir) + ", ", Colours.Blue);
         }
 
         // New line
-        Print("");
+        PrintLine("");
 
         // List all the directories in the current directory
         foreach (var file in Directory.GetFiles(currentDirectory))
         {
             var fileInfo = new FileInfo(file);
-            PrintPrompt($"{fileInfo.Name}, ", Colours.Green);
+            Print($"{fileInfo.Name}, ", Colours.Green);
         }
 
         // New line
-        Print("");
+        PrintLine("");
 
 
         // Return success

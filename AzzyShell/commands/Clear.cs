@@ -21,8 +21,8 @@ public class Clear : Command
         catch (Exception e)
         {
             // Print the error
-            Print($"Exception occurred while clearing the console", Colours.Red);
-            Print(e.Message, Colours.Red);
+            PrintLine($"Exception occurred while clearing the console", Colours.Red);
+            PrintLine(e.Message, Colours.Red);
 
             // Return error - 454 for no command
             return 454; // special code for dotnet command failure

@@ -16,7 +16,7 @@ public class FizzBuzz : Command
         if (!int.TryParse(args[1], out int number))
         {
             // Print error
-            Print("Invalid number");
+            PrintLine("Invalid number");
 
             // Return error
             return 1;
@@ -27,7 +27,7 @@ public class FizzBuzz : Command
             if (i % 3 == 0) output += "Fizz";
             if (i % 5 == 0) output += "Buzz";
             if (output == "") output = i.ToString();
-            Print(output);
+            PrintLine(output);
         }
 
         // Return success

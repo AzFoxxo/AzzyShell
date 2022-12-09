@@ -24,7 +24,7 @@ public class Cat : Command
             // Check if the file exists
             if (!File.Exists(file))
             {
-                Print($"File not found {i}", Colours.Red);
+                PrintLine($"File not found {i}", Colours.Red);
                 return 1;
             }
 
@@ -32,10 +32,10 @@ public class Cat : Command
             string[] lines = File.ReadAllLines(file);
 
             // Print the file
-            Print($"{file}:", Colours.Blue);
+            PrintLine($"{file}:", Colours.Blue);
             foreach (string line in lines)
             {
-                Print(line, Colours.Yellow);
+                PrintLine(line, Colours.Yellow);
             }
         }
 

@@ -34,8 +34,8 @@ public class External : Command
             catch (Exception e)
             {
                 // Print the error
-                Print($"Exception occurred while running external `{command}`", Colours.Red);
-                Print(e.Message, Colours.Red);
+                PrintLine($"Exception occurred while running external `{command}`", Colours.Red);
+                PrintLine(e.Message, Colours.Red);
 
                 // Return error - 455 for no command
                 return 455; // special code for external command failure

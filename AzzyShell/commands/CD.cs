@@ -23,7 +23,7 @@ public class CD : Command
         }
         else
         {
-            Print($"Directory does not exist {args[1]}");
+            PrintLine($"Directory does not exist {args[1]}");
             return 1;
         }
 

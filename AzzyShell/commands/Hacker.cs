@@ -19,14 +19,14 @@ public class Hacker : Command
             int random = new Random().Next(0, 2);
 
             // Print the logo
-            PrintPrompt(random.ToString(), Colours.Green);
+            Print(random.ToString(), Colours.Green);
 
             // Break loop if escape key is pressed (dotnet)
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape) break;
         }
 
         // Print a new line
-        Print("");
+        PrintLine("");
 
         // Return success
         return 0;

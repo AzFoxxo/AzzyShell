@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 [AutoInitialise]
 public class AzzyShell : Hero
 {
-    private const string version = "1.1.0";
+    private const string version = "1.1.1";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
     private const string description = "A simple shell to test the Heroes framework.";
@@ -39,6 +39,9 @@ public class AzzyShell : Hero
     // Print the welcome message
     public override void OnStart()
     {
+        // Run the clear command
+        returnedCode = new Clear().Execute(new string[] { "clear" });
+
         // Run the welcome command
         returnedCode = new Welcome().Execute(new string[] { "welcome" });
 
@@ -211,7 +214,7 @@ public class AzzyShell : Hero
                 // System not external command
                 if (returnedCode == 0)
                 {
-                    Print($"Failed to find the command `{args[0]}`", Colours.Red);
+                    PrintLine($"Failed to find the command `{args[0]}`", Colours.Red);
                     return 1;
                 } else return returnedCode;
         }

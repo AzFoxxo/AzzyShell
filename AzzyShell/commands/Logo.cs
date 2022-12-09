@@ -13,12 +13,12 @@ public class Logo : Command
         args = VariableTranslation(args);
 
         // Print the logo
-        Print(@"     ___      ________   ________  ____    ____         _______. __    __   _______  __       __      ", Colours.DarkRed);
-        Print(@"    /   \    |       /  |       /  \   \  /   /        /       ||  |  |  | |   ____||  |     |  |     ", Colours.Red);
-        Print(@"   /  ^  \   `---/  /   `---/  /    \   \/   /        |   (----`|  |__|  | |  |__   |  |     |  |     ", Colours.Yellow);
-        Print(@"  /  /_\  \     /  /       /  /      \_    _/          \   \    |   __   | |   __|  |  |     |  |     ", Colours.Green);
-        Print(@" /  _____  \   /  /----.  /  /----.    |  |        .----)   |   |  |  |  | |  |____ |  `----.|  `----.", Colours.Blue);
-        Print(@"/__/     \__\ /________| /________|    |__|        |_______/    |__|  |__| |_______||_______||_______|", Colours.Magenta);
+        PrintLine(@"     ___      ________   ________  ____    ____         _______. __    __   _______  __       __      ", Colours.DarkRed);
+        PrintLine(@"    /   \    |       /  |       /  \   \  /   /        /       ||  |  |  | |   ____||  |     |  |     ", Colours.Red);
+        PrintLine(@"   /  ^  \   `---/  /   `---/  /    \   \/   /        |   (----`|  |__|  | |  |__   |  |     |  |     ", Colours.Yellow);
+        PrintLine(@"  /  /_\  \     /  /       /  /      \_    _/          \   \    |   __   | |   __|  |  |     |  |     ", Colours.Green);
+        PrintLine(@" /  _____  \   /  /----.  /  /----.    |  |        .----)   |   |  |  |  | |  |____ |  `----.|  `----.", Colours.Blue);
+        PrintLine(@"/__/     \__\ /________| /________|    |__|        |_______/    |__|  |__| |_______||_______||_______|", Colours.Magenta);
 
 
         // Return success

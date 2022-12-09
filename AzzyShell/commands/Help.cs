@@ -13,25 +13,25 @@ public class Help : Command
         args = VariableTranslation(args);
 
         // Print list of commands
-        Print("Commands:");
-        Print("quit - Quit the app");
-        Print("help - Show this help message");
-        Print("ls - List all files and directories in the current directory");
-        Print("pwd - Print the current directory");
-        Print("clear - Clear the console");
-        Print("cd - Change the current directory");
-        Print("touch - Create a new file");
-        Print("mkdir - Create a new directory");
-        Print("remove - Remove a file or directory");
-        Print("cat - Print the contents of a file");
-        Print("log - Log a message to the console");
-        Print("fizzbuzz - Print the FizzBuzz sequence up to a given number");
-        Print("set - Set a variable");
-        Print("vars - List all variables");
-        Print("logo - Print the Azzy logo");
-        Print("hacker - Print 0 and 1 in a hacker style");
-        Print("gaytext - Print a message in gay colours");
-        Print("history - Print the command history");
+        PrintLine("Commands:");
+        PrintLine("quit - Quit the app");
+        PrintLine("help - Show this help message");
+        PrintLine("ls - List all files and directories in the current directory");
+        PrintLine("pwd - Print the current directory");
+        PrintLine("clear - Clear the console");
+        PrintLine("cd - Change the current directory");
+        PrintLine("touch - Create a new file");
+        PrintLine("mkdir - Create a new directory");
+        PrintLine("remove - Remove a file or directory");
+        PrintLine("cat - Print the contents of a file");
+        PrintLine("log - Log a message to the console");
+        PrintLine("fizzbuzz - Print the FizzBuzz sequence up to a given number");
+        PrintLine("set - Set a variable");
+        PrintLine("vars - List all variables");
+        PrintLine("logo - Print the Azzy logo");
+        PrintLine("hacker - Print 0 and 1 in a hacker style");
+        PrintLine("gaytext - Print a message in gay colours");
+        PrintLine("history - Print the command history");
 
 
         // Return success

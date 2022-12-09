@@ -15,7 +15,7 @@ public class History : Command
         // Check no more than 2 args given
         if (args.Length > 2)
         {
-            Print("Too many arguments given.");
+            PrintLine("Too many arguments given.");
             return 1;
         }
 
@@ -26,7 +26,7 @@ public class History : Command
             File.WriteAllText(AzzyShell.GetInstance().historyFile, "");
 
             // Print success message
-            Print("History cleared.");
+            PrintLine("History cleared.");
             
             // Return success
             return 0;
@@ -48,7 +48,7 @@ public class History : Command
         // Print the history with line numbers starting from the bottom of the file
         for (int i = history.Length - 1; i >= 0; i--)
         {
-            Print((history.Length - i) + ": " + history[i]);
+            PrintLine((history.Length - i) + ": " + history[i]);
         }
 
         // Return success

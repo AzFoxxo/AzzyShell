@@ -16,12 +16,12 @@ public class PWD : Command
         var dir = Directory.GetCurrentDirectory();
         if (dir == null)
         {
-            Print("Error getting current directory");
+            PrintLine("Error getting current directory");
             return 1;
         }
 
         // Print the current directory
-        Print(dir, Colours.Blue);
+        PrintLine(dir, Colours.Blue);
 
 
         // Return success

@@ -13,7 +13,7 @@ public class Log : Command
         args = VariableTranslation(args);
 
         // Log the message
-        Print(args[1]);
+        PrintLine(args[1]);
 
         // Return success
         return 0;
