@@ -33,4 +33,14 @@ public class FizzBuzz : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "Print the FizzBuzz sequence";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name} [args]", Colours.Green);
+        PrintLine("Args:", Colours.Green);
+        PrintLine("  arg1 - Number to count to*", Colours.Green);
+    }
 }

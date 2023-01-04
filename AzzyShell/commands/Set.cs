@@ -72,4 +72,12 @@ public class Set : Command
         return 0;
         
     }
+
+    public override string Description => "Set a variable";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name} <name> <value>", Colours.Green);
+    }
 }

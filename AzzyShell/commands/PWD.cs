@@ -27,4 +27,12 @@ public class PWD : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "Print the current directory";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name}", Colours.Green);
+    }
 }

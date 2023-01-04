@@ -18,4 +18,12 @@ public class Quit : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "Quit the shell";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name}", Colours.Green);
+    }
 }

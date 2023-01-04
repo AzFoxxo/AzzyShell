@@ -22,11 +22,11 @@ public class External : Command
             // Try to run the command
             try
             {
-                // Run the command
+                // Run the command and pause until it finishes
                 ProcessStartInfo startInfo = new ProcessStartInfo(command);
                 startInfo.Arguments = string.Join(" ", args.Skip(1));
                 startInfo.UseShellExecute = true;
-                Process.Start(startInfo);
+                Process.Start(startInfo).WaitForExit();
 
                 // Return 555 if no errors
                 return 555; // special code for external command success
@@ -44,5 +44,16 @@ public class External : Command
 
         // Return success
         return 0;
+    }
+
+    public override string Description => "Run a command in the system default shell";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name} [args]", Colours.Green);
+        PrintLine("Args:", Colours.Green);
+        PrintLine("  arg1 - Command to run*", Colours.Green);
+        PrintLine("  arg2 - Arguments to pass to the command (optional)", Colours.Green);
     }
 }

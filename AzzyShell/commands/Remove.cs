@@ -48,4 +48,14 @@ public class Remove : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "Delete a file or directory";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name} [args]", Colours.Green);
+        PrintLine("Args:", Colours.Green);
+        PrintLine("  arg1 - Name of file or directory*", Colours.Green);
+    }
 }

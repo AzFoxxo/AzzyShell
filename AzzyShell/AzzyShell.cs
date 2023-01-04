@@ -2,12 +2,17 @@ namespace App;
 using Heroes;
 using Commands;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 // A test hero
+// TODO: Actually make this a shell by parsing the input and running the commands
+// TODO: Better variable system
+// TODO: Implement way to load .azzy files on load
+// TODO: Command to execute .azzy files
 [AutoInitialise]
 public class AzzyShell : Hero
 {
-    private const string version = "1.1.1";
+    private const string version = "1.2.x-indev";
     private const string shell = "AzzyShell";
     private const string author = "Az Foxxo";
     private const string description = "A simple shell to test the Heroes framework.";
@@ -19,6 +24,8 @@ public class AzzyShell : Hero
     public List<Variables> variables = new();
 
     private string[] args = new string[0];
+
+    public List<Type> CommandList = new();
 
     public string historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".history.azzy");
 
@@ -34,6 +41,16 @@ public class AzzyShell : Hero
         variables.Add(new Variables("colour", "Cyan", "String"));
 
         instance = this;
+
+        // Find a list of all commands
+        CommandList = new();
+        foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+        {
+            if (type.IsSubclassOf(typeof(Command)))
+            {
+                CommandList.Add(type);
+            }
+        }
     }
 
     // Print the welcome message
@@ -133,7 +150,7 @@ public class AzzyShell : Hero
             }
 
             // Find the command
-            returnedCode = CommandSwitch();
+            returnedCode = RunCommand();
         }
     }
 
@@ -150,7 +167,8 @@ public class AzzyShell : Hero
         }
 
         // Read the current line
-        string input = Read(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
+        // string input = Read(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
+        string input = ConsoleApp.ConsoleInput.ReadLine(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
 
         // Add the line to the history file
         File.AppendAllText(historyFile, input + "\n");
@@ -159,64 +177,37 @@ public class AzzyShell : Hero
     }
 
     public static AzzyShell GetInstance() => instance!;
-    public int CommandSwitch()
+    public int RunCommand()
     {
-        // Check if the first argument is a command
-        switch (args[0])
+        // Get the command name to run
+        var commandName = args[0].ToLower();
+
+        // Loop through all commands and find the command to run
+        foreach (Type type in CommandList)
         {
-            case "help":
-                return new Help().Execute(args);
-            case "quit":
-                return new Quit().Execute(args);
-            case "pwd":
-                return new PWD().Execute(args);
-            case "cd":
-                return new CD().Execute(args);
-            case "ls":
-                return new LS().Execute(args);
-            case "clear":
-                return new Clear().Execute(args);
-            case "touch":
-                return new Touch().Execute(args);
-            case "remove":
-                return new Remove().Execute(args);
-            case "mkdir":
-                return new MKDir().Execute(args);
-            case "log":
-                return new Log().Execute(args);
-            case "cat":
-                return new Cat().Execute(args);
-            case "fizzbuzz":
-                return new FizzBuzz().Execute(args);
-            case "vars":
-                return new Vars().Execute(args);
-            case "set":
-                return new Set().Execute(args);
-            case "logo":
-                return new Logo().Execute(args);
-            case "hacker":
-                return new Hacker().Execute(args);
-            case "gaytext":
-                return new GayText().Execute(args);
-            case "history":
-                return new History().Execute(args);
+            // Get the command name
+            string name = type.Name.ToLower();
 
-            // Azzy internal commands
-            case "azzy_welcome":
-                return new Welcome().Execute(args);
+            // Check if the command name matches the command to run
+            if (name == commandName)
+            {
+                // Create a new instance of the command
+                Command command = (Command)Activator.CreateInstance(type);
 
-            // If the command is not found, return 1 and print an error message
-            default:
-
-                // Launch the command in system shell
-                returnedCode = new External().Execute(args);
-
-                // System not external command
-                if (returnedCode == 0)
-                {
-                    PrintLine($"Failed to find the command `{args[0]}`", Colours.Red);
-                    return 1;
-                } else return returnedCode;
+                // Run the command
+                return command.Execute(args);
+            }
         }
+
+        // Launch the command in system shell
+        returnedCode = new External().Execute(args);
+
+        // System not external command
+        if (returnedCode == 0)
+        {
+            PrintLine($"Failed to find the command `{args[0]}`", Colours.Red);
+            return 1;
+        }
+        else return returnedCode;
     }
 }

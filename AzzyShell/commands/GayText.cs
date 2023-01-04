@@ -21,4 +21,14 @@ public class GayText : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "Print a message in gay text";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name} [args]", Colours.Green);
+        PrintLine("Args:", Colours.Green);
+        PrintLine("  arg1 - Message to print*", Colours.Green);
+    }
 }

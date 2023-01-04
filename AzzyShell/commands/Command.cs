@@ -4,6 +4,9 @@ using Heroes;
 
 public class Command : Hero
 {
+    // Description of the command (used in help) property
+    public virtual string Description => "No description available for this command.";
+
     public virtual int Execute(string[] args) => throw new NotImplementedException();
 
     public virtual void PrintHelp(string[] args) => PrintLine($"No help available for this command - {args[0]}", Colours.Red);

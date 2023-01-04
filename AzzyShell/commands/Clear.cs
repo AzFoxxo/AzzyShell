@@ -32,4 +32,12 @@ public class Clear : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "Clear the console";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name}", Colours.Green);
+    }
 }

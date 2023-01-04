@@ -59,4 +59,14 @@ public class LS : Command
         // Return success
         return 0;
     }
+
+    public override string Description => "List all files and directories in the current directory";
+
+    public override void PrintHelp(string[] args)
+    {
+        PrintLine(Description, Colours.Green);
+        PrintLine($"Usage: {this.GetType().Name} [args]", Colours.Green);
+        PrintLine("Args:", Colours.Green);
+        PrintLine("  arg1 - Directory to list (optional)", Colours.Green);
+    }
 }
