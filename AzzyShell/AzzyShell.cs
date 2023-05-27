@@ -134,6 +134,17 @@ public class AzzyShell : Hero
 
             // Find the command
             returnedCode = CommandSwitch();
+
+            // Update the "returnedCode" variable
+            for (int i = 0; i < variablesArray.Length; i++)
+            {
+                if (variablesArray[i].name == "returnedCode")
+                {
+                    variablesArray[i].value = returnedCode.ToString();
+                    variables[i] = variablesArray[i];
+                    break;
+                }
+            }
         }
     }
 
