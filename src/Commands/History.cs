@@ -5,12 +5,15 @@ class History : Command
     public override int Execute(string[] args)
     {
        // Argument length validation
-        if (!IsArgumentLengthValid(args, 2))
+        if (!IsArgumentLengthValid(args, 1, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
         // Check if the command is "clear"
-        if (args.Length == 2 && args[1] == "clear")
+        if (args.Length == 2)
         {
+            // Check is clear command
+            if (args[1] != "clear") return (int)ErrorCode.InvalidArguments;
+
             // Clear the history file
             File.WriteAllText(Shell.historyFile, "");
 
