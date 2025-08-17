@@ -10,7 +10,7 @@ partial class Azzy : HeroesPatch
     private static Azzy? instance;
 
     // Constants
-    private const string version = "2.4.0";
+    private const string version = "2.4.1";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
@@ -238,6 +238,11 @@ partial class Azzy : HeroesPatch
         // Get colour and prompt from variables
         string colourStr = GetVariable("colour") ?? "green";
         string promptStr = GetVariable("prompt") ?? "~";
+
+        // Add status code if non-zero
+        var status = GetVariable("status");
+        if (status != "0")
+            promptStr = $"({status}) {promptStr}";
 
         // Convert string colour to Heroes enum
         if (!Enum.TryParse(colourStr, true, out Colours heroesColour))
