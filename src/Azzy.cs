@@ -6,7 +6,7 @@ using AzzyShell.Commands;
 
 partial class Azzy : HeroesPatch
 {
-    private const string version = "2.3.0";
+    private const string version = "2.3.1";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#";
@@ -225,7 +225,7 @@ partial class Azzy : HeroesPatch
 
     public int CommandSwitch()
     {
-        // Resolve arguments
+        // Argument resolution
         string[] resolvedCommand;
         try
         {
@@ -240,42 +240,42 @@ partial class Azzy : HeroesPatch
         if (resolvedCommand.Length == 0)
             return (int)ErrorCode.InvalidArguments;
 
-        string commandKey = resolvedCommand[0];
+        // Get the command
+        var command = resolvedCommand[0];
 
-        // Check for built-in command (match class name)
+        // Check for built-in commands
         var commandType = Assembly.GetExecutingAssembly()
             .GetTypes()
             .FirstOrDefault(t =>
                 typeof(Command).IsAssignableFrom(t) &&
                 !t.IsAbstract &&
-                string.Equals(t.Name, commandKey, StringComparison.OrdinalIgnoreCase)
+                string.Equals(t.Name, command, StringComparison.OrdinalIgnoreCase)
             );
 
-        if (commandType != null)
+        if (commandType is not null)
         {
-            // Check if the instance is null before executing
+            // Execute command if null check passed
             if (Activator.CreateInstance(commandType) is Command commandInstance)
             {
                 return commandInstance.Execute(resolvedCommand);
             }
             else
             {
-                // Handle the case where the instance couldn't be created
+                // Log null check failure
                 PrintLine("Failed to create command instance.", Colours.Red);
                 return (int)ErrorCode.ExecutionFailure;
             }
         }
 
+        // Command not found, check program_path for external commands
+        string pathVar = GetVariable("program_path") ?? "/bin:/usr/bin"; // Query path
+        var paths = pathVar.Split(':', StringSplitOptions.RemoveEmptyEntries); // Get paths
 
-        // Fallback to external command using program_path variable
-        string pathVar = GetVariable("program_path") ?? "/bin:/usr/bin";
-        var paths = pathVar.Split(':', StringSplitOptions.RemoveEmptyEntries);
-
-        string? executablePath = null;
+        string? executablePath;
 
         foreach (var path in paths)
         {
-            var candidate = Path.Combine(path, commandKey);
+            var candidate = Path.Combine(path, command);
             if (File.Exists(candidate))
             {
                 executablePath = candidate;
@@ -283,10 +283,10 @@ partial class Azzy : HeroesPatch
             }
         }
 
-        if (executablePath == null)
+        if (executablePath is null)
         {
-            PrintLine($"Failed to find the command `{commandKey}` in program_path", Colours.Red);
-            return 1;
+            PrintLine($"Failed to find the command `{command}` in program_path", Colours.Red);
+            return (int)ErrorCode.CommandNotFound;
         }
 
         try
@@ -294,30 +294,56 @@ partial class Azzy : HeroesPatch
             var process = new System.Diagnostics.Process();
             process.StartInfo.FileName = executablePath;
             process.StartInfo.Arguments = string.Join(' ', resolvedCommand.Skip(1));
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
+
+            // Check if command is interactive
+            bool isInteractive = IsCommandInteractive();
+
+            if (isInteractive)
+            {
+                // Interactive commands
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.CreateNoWindow = false;
+            }
+            else
+            {
+                // Non-interactive commands
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+            }
 
             process.Start();
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
+            if (!process.StartInfo.UseShellExecute)
+            {
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
 
-            process.WaitForExit();
+                process.WaitForExit();
 
-            if (!string.IsNullOrEmpty(output))
-                Console.WriteLine(output);
+                if (!string.IsNullOrEmpty(output))
+                    Console.WriteLine(output);
 
-            if (!string.IsNullOrEmpty(error))
-                Console.Error.WriteLine(error);
+                if (!string.IsNullOrEmpty(error))
+                    Console.Error.WriteLine(error);
+            }
+            else
+            {
+                // Wait for process to terminate
+                process.WaitForExit();
+            }
 
             return process.ExitCode;
         }
         catch (Exception ex)
         {
             PrintLine($"[Error] Failed to run external command: {ex.Message}", Colours.Red);
-            return 1;
+            return (int)ErrorCode.CommandNotFound;
         }
     }
+
+    // Check if command is interactive
+    private bool IsCommandInteractive() => !Console.IsInputRedirected && !Console.IsOutputRedirected;
+
 }
