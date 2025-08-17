@@ -5,7 +5,7 @@ class FizzBuzz : Command
     public override int Execute(string[] args)
     {
         // Argument length validation
-        if (!IsArgumentLengthValid(args, 1))
+        if (!IsArgumentLengthValid(args, 2))
             return (int)ErrorCode.InvalidArguments;
 
         // Try to parse the number
