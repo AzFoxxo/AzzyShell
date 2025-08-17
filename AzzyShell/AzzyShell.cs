@@ -158,7 +158,7 @@ public class AzzyShell : Hero
         }
 
         // Read the current line
-        string input = Read(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
+        string input = ReadInline(variables.Find(x => x.name == "prompt").value + " ", heroesColour);
 
         // Add the line to the history file
         File.AppendAllText(historyFile, input + "\n");
