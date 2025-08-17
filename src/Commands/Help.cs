@@ -16,7 +16,7 @@ class Help : Command
         PrintLine("- pwd - Print the current directory");
         PrintLine("- clear - Clear the console");
         PrintLine("- cd - Change the current directory");
-        PrintLine("- touch - Create a new file");
+        PrintLine("- touch - Update timetamp of a file or create a new file");
         PrintLine("- mkdir - Create a new directory");
         PrintLine("- remove - Remove a file or directory");
         PrintLine("- cat - Print the contents of a file");
@@ -28,7 +28,7 @@ class Help : Command
         PrintLine("- hacker - Print 0 and 1 in a hacker style");
         PrintLine("- gaytext - Print a message in gay colours");
         PrintLine("- history - Print the command history");
-        PrintLine("- run - Run a Azzy Shell Script file line-by-line");
+        PrintLine("- run - Run a AzzyShell Script file line-by-line");
         PrintLine("- alias - Create/update and view aliases");
 
         // Return success

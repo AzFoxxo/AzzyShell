@@ -260,9 +260,9 @@ partial class Azzy : HeroesPatch
     }
 
     /// <summary>
-    /// Get the reference to the Azzy shell
+    /// Get the reference to the AzzyShell
     /// </summary>
-    /// <returns>Reference to Azzy shell</returns>
+    /// <returns>Reference to AzzyShell</returns>
     public static Azzy GetInstance() => instance!;
 
     /// <summary>

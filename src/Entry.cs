@@ -13,7 +13,7 @@ public static class Program
     {
         while (Running)
         {
-            // Azzy Shell tick
+            // AzzyShell tick
             azzy.Tick();
         }
     }

@@ -1,17 +1,35 @@
-namespace AzzyShell.Commands;
+using System;
+using System.IO;
 
-class Touch : Command
+namespace AzzyShell.Commands
 {
-    public override int Execute(string[] args)
+    class Touch : Command
     {
-        // Argument length validation
-        if (!IsArgumentLengthValid(args, 2))
-            return (int)ErrorCode.InvalidArguments;
+        public override int Execute(string[] args)
+        {
+            // Argument length validation (allowing multiple files)
+            if (!IsArgumentLengthValid(args, 2, allowGreaterThanLength: true))
+                return (int)ErrorCode.InvalidArguments;
 
-        // Create the file
-        File.Create(args[1]);
+            // Iterate over all files
+            foreach (var filePath in args.Skip(1))
+            {
+                // Check if the file exists
+                if (File.Exists(filePath))
+                {
+                    // Update timestamps
+                    File.SetLastAccessTime(filePath, DateTime.Now);
+                    File.SetLastWriteTime(filePath, DateTime.Now);
+                }
+                else
+                {
+                    // Create the file
+                    using (File.Create(filePath)) { }
+                }
+            }
 
-        // Return success
-        return (int)ErrorCode.Success;
+            // Return success
+            return (int)ErrorCode.Success;
+        }
     }
 }

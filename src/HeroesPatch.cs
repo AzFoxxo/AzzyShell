@@ -1,6 +1,6 @@
 /*
 *   This file is a stripped down reimplemention
-*   of the logic Azzy Shell used from Heroes
+*   of the logic AzzyShell used from Heroes
 *
 *   The code should be a straight drop-in for Hero
 *   for common commands (like IO and colours only)
