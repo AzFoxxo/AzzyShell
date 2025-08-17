@@ -1,10 +1,10 @@
 # Azzy Shell
 
-Azzy Shell is a lightweight shell environment written in C#
+AzzyShell is a lightweight shell environment written in C#.
 
-Note: The shell doesn't parse input into tokens and only does the absolute basics to interpret commands.
+> **Note**: The shell doesn't parse input into tokens and only does the absolute basics to interpret commands.
 
-![alt](screenshot.png)
+![AzzyShell running in Konsole](screenshot.png)
 
 ## Supported commands
 ```
@@ -33,6 +33,8 @@ alias - Create/update and view aliases
 ## Azzy Shell Script
 
 AzzyShell uses AzzyShell Script (ASS) for scripts.
+
+Examples can be found in the `scripts/` directory. 
 
 ### Configuration
 
