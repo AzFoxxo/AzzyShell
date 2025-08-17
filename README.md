@@ -1,10 +1,8 @@
 # Azzy Shell
 
-Azzy Shell is a simple shell written in C# and the Heroes framework.
+Azzy Shell is a lightweight shell environment written in C#
 
-The Heroes framework can be found [here](https://github.com/azFoxxo/heroes).
-
-Note: The shell doesn't parse input into tokens and only does the absolute basics to work as this is solely designed to test the framework. 
+Note: The shell doesn't parse input into tokens and only does the absolute basics to interpret commands.
 
 ![alt](screenshot.png)
 
