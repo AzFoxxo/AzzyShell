@@ -271,7 +271,7 @@ partial class Azzy : HeroesPatch
         string pathVar = GetVariable("program_path") ?? "/bin:/usr/bin"; // Query path
         var paths = pathVar.Split(':', StringSplitOptions.RemoveEmptyEntries); // Get paths
 
-        string? executablePath;
+        string? executablePath = null;
 
         foreach (var path in paths)
         {
