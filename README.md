@@ -57,7 +57,7 @@ Using `<variable>` will return the index of the variable.
 
 ### External commands
 
-Use `!` at the start of the command to find a program installed on the system.
+If a command is not found, it will search the `program_path` for the executable.
 
 ### Comments
 
