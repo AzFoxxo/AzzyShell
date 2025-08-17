@@ -10,7 +10,8 @@ public class Vars : Command
         if (CheckArgLength(args, 1) != 0) return 2;
 
         // List all the variables
-        foreach (Variables variable in AzzyShell.GetInstance().variables) {
+          var variables = AzzyShell.GetInstance().variables;
+        foreach (var variable in variables) {
             // Is string
             var isString = variable.type == "String";
             
@@ -18,7 +19,7 @@ public class Vars : Command
             Print($"{AzzyShell.GetInstance().variables.IndexOf(variable)}: ", Colours.Yellow);
             Print($"{variable.type} ", Colours.DarkRed);
             Print($"{variable.name} ", Colours.Green);
-            Print($"= ", Colours.White);
+            Print($"=", Colours.White);
             if (isString) PrintLine($" \"{variable.value}\"", Colours.Blue); else PrintLine($" {variable.value}", Colours.Blue);
         }
 

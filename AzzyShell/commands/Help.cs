@@ -29,7 +29,7 @@ public class Help : Command
         PrintLine("hacker - Print 0 and 1 in a hacker style");
         PrintLine("gaytext - Print a message in gay colours");
         PrintLine("history - Print the command history");
-
+        PrintLine("run - Run a Azzy Shell Script file line-by-line");
 
         // Return success
         return 0;

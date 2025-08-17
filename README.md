@@ -1,4 +1,5 @@
 # Azzy Shell
+
 Azzy Shell is a simple shell written in C# and the Heroes framework.
 
 The Heroes framework can be found [here](https://github.com/azFoxxo/heroes).
@@ -7,7 +8,7 @@ Note: The shell doesn't parse input into tokens and only does the absolute basic
 
 ![alt](screenshot.png)
 
-Supported commands in shell:
+## Supported commands
 ```
 quit - Quit the app
 help - Show this help message
@@ -27,7 +28,18 @@ logo - Print the Azzy logo
 hacker - Print 0 and 1 in a hacker style
 gaytext - Print a message in gay colours
 history - Print the command history
+run - Run a Azzy Shell Script file line-by-line
 ```
+
+## Azzy Shell Script
+
+AzzyShell uses AzzyShell Script (ASS) for scripts.
+
+### Configuration
+
+If a file called `~/.azzyshell_init.ass` is present, the shell will skip the usual init and run the custom one.
+
+### Variables
 
 Additionally, the shell supports multiple commands using `&&` and defining and using variables.
 Using `[variable]` will return that variable's type.
@@ -35,11 +47,18 @@ Using `{variable}` will return it's value.
 Using `(variable)` will return the name of the variable.
 Using `<variable>` will return the index of the variable.
 
-Special characters are:
+### Special characters
 `@DOUBLE@` for `"`
 `@AND@` for `&&`
 `@NEWLINE@` for `\n` (newline)
 `@TAB@` for `\t` (tab)
 `@AT@` for `@`
+`@HASH@` for `#`
+
+### External commands
 
 Use `!` at the start of the command to find a program installed on the system.
+
+### Comments
+
+Comments can be created by using `#` and anything following it will be skipped until a newline.

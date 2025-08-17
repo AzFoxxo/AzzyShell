@@ -6,9 +6,7 @@ public abstract class Command : Hero
 {
     public virtual int Execute(string[] args) => throw new NotImplementedException();
 
-    public virtual void PrintHelp(string[] args) => PrintLine($"No help available for this command - {args[0]}", Colours.Red);
-
-    public int CheckArgLength(string[] args, int length, bool allowGreaterThanLength = false)
+    public static int CheckArgLength(string[] args, int length, bool allowGreaterThanLength = false)
     {
         if (args.Length != length)
         {
@@ -25,73 +23,79 @@ public abstract class Command : Hero
         }
     }
 
-    public static string[] VariableTranslation(string[] args)
+    /// <summary>
+    /// Resolve variables
+    /// </summary>
+    /// <param name="args">Unresolved string array for command plus operands</param>
+    /// <returns>Resolved string array</returns>
+    /// <exception cref="ArgumentException">Thrown if an unrecognised opening bracket is encountered, or if a variable is not found, or if a closing bracket is missing.</exception>
+    public static string[] VariableResolution(string[] args)
     {
-        // Loop through each argument
-        var varList = AzzyShell.GetInstance().variables;
+        var shell = AzzyShell.GetInstance();
+        var variables = shell.variables;
+
+        // Build LUT table
+        var variableDict = variables.ToDictionary(v => v.name);
+
+        // Define opening to closing character map and what they mean
+        var modeMap = new Dictionary<char, Func<Variables, string>>
+    {
+        { '{', v => v.value },
+        { '[', v => v.type },
+        { '(', v => v.name },
+        { '<', v => variables.FindIndex(x => x.name == v.name).ToString() }
+    };
+
         for (int i = 0; i < args.Length; i++)
         {
-            // Loop the current arg
-            for (int j = 0; j < args[i].Length; j++)
-            {
-                // Variable mode (type, name, value, index)
-                char opening;
-                char closing;
-                if (args[i][j] == '{') { opening = '{'; closing = '}'; }
-                else if (args[i][j] == '[') { opening = '['; closing = ']'; }
-                else if (args[i][j] == '(') { opening = '('; closing = ')'; }
-                else if (args[i][j] == '<') { opening = '<'; closing = '>'; }
-                else { continue; }
+            var arg = args[i];
 
-                // Check if the current arg contains a variable
-                string variable = "";
-                for (int k = j + 1; k < args[i].Length; k++)
+            foreach (var mode in modeMap.Keys)
+            {
+                char open = mode;
+                char close = GetClosingChar(open);
+
+                int startIndex = 0;
+
+                while (startIndex < arg.Length)
                 {
-                    if (args[i][k] == closing)
+                    int openIndex = arg.IndexOf(open, startIndex);
+                    if (openIndex == -1) break;
+
+                    int closeIndex = arg.IndexOf(close, openIndex + 1);
+                    if (closeIndex == -1)
+                        throw new ArgumentException($"Unclosed variable placeholder: expected '{close}' after '{open}' in \"{arg}\".");
+
+                    string varName = arg.Substring(openIndex + 1, closeIndex - openIndex - 1);
+
+                    if (variableDict.TryGetValue(varName, out var variable))
                     {
-                        break;
+                        string replacement = modeMap[open](variable);
+                        arg = arg.Substring(0, openIndex) + replacement + arg.Substring(closeIndex + 1);
+                        startIndex = openIndex + replacement.Length;
                     }
                     else
                     {
-                        variable += args[i][k];
+                        throw new ArgumentException($"Variable '{varName}' not found.");
                     }
                 }
-                // Get the variable value
-                string variableInfo = "";
-                foreach (Variables var in varList)
-                {
-                    if (var.name == variable)
-                    {
-                        // Check if opening character is `{` (value)
-                        if (opening == '{') variableInfo = var.value;
-                        // Check if opening character is `[` (type)
-                        else if (opening == '[') variableInfo = var.type;
-                        // Check if opening character is `(` (name)
-                        else if (opening == '(') variableInfo = var.name;
-                        // Check if opening character is `<` (index)
-                        // Get the index of the variable in the variable list
-                        else if (opening == '<')
-                        {
-                            for (int k = 0; k < varList.Count; k++)
-                            {
-                                if (varList[k].name == variable)
-                                {
-                                    variableInfo = k.ToString();
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Variable found, break the loop
-                        break;
-                    }
-                }
-                // Replace the variable with it's value, type, name or index
-                args[i] = args[i].Replace($"{opening}{variable}{closing}", variableInfo);
             }
+
+            args[i] = arg;
         }
 
-        // Return the translated argument
         return args;
+
+        static char GetClosingChar(char open)
+        {
+            return open switch
+            {
+                '{' => '}',
+                '[' => ']',
+                '(' => ')',
+                '<' => '>',
+                _ => throw new ArgumentException($"Unknown opening character: {open}")
+            };
+        }
     }
 }

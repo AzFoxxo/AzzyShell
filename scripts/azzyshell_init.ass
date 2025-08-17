@@ -1,0 +1,6 @@
+#!/usr/bin/azzyshell
+
+# Copy to ~/azzyshell.ass to override shell initalisation
+clear
+welcome
+logo

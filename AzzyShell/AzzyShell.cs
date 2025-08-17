@@ -8,10 +8,10 @@ using System.Reflection;
 [AutoInitialise]
 public class AzzyShell : Hero
 {
-    private const string version = "2.0.0";
+    private const string version = "2.1.0";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
-    private const string description = "A simple shell written in C# and Heroes framework";
+    private const string description = "A simple shell written in C# and Heroes framework.";
     private const string prompt = "$";
 
     int returnedCode = 0;
@@ -37,112 +37,141 @@ public class AzzyShell : Hero
         instance = this;
     }
 
-    // Print the welcome message
+    // Load configuration
     public override void OnStart()
     {
-        // Start-up commans
-        returnedCode = new Clear().Execute(["clear"]);
-        returnedCode = new Welcome().Execute(["welcome"]);
-        returnedCode = new Logo().Execute(["logo"]);
+        string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string initFilePath = Path.Combine(homeDirectory, ".azzyshell_init.ass");
 
-        // Check if the history file exists in the home directory
+        // Check if the config file exists
+        if (File.Exists(initFilePath))
+        {
+            // If the config file exists, run it using the "run" command
+            returnedCode = new Run().Execute(new string[] { "run", initFilePath });
+
+            if (returnedCode != 0)
+            {
+                // Handle any errors from the initialization script
+                PrintLine($"Error occurred while running {initFilePath}.", Colours.Red);
+                return;
+            }
+        }
+        else
+        {
+            // Run default commands if the initialization file does not exist
+            returnedCode = new Clear().Execute(new string[] { "clear" });
+            returnedCode = new Welcome().Execute(new string[] { "welcome" });
+            returnedCode = new Logo().Execute(new string[] { "logo" });
+        }
+
+        // Check for history file and create if it doesn't exist
         if (!File.Exists(historyFile))
         {
-            // Create the history file
-            File.Create(historyFile);
+            File.Create(historyFile).Close();
+        }
+    }
+
+    public int ExecuteCommand(string input)
+    {
+        // Split the input into several commands (support && and new lines)
+        var commands = input.Split(new[] { "&&", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        int lastReturnedCode = 0;
+
+        foreach (string command in commands)
+        {
+            string trimmedCommand = command.Trim();
+
+            // Skip the line if it starts with # (comment)
+            if (trimmedCommand.StartsWith("#"))
+                continue;
+
+            // Remove inline comments (anything after #)
+            int commentIndex = trimmedCommand.IndexOf('#');
+            if (commentIndex >= 0)
+            {
+                trimmedCommand = trimmedCommand.Substring(0, commentIndex).Trim();
+            }
+
+            #region @Replaces@
+            string doubleQuote = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@DOUBLE@", doubleQuote);
+
+            string and = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@AND@", and);
+
+            string newline = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@NEWLINE@", newline);
+
+            string at = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@AT@", at);
+
+            string tab = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@TAB@", tab);
+
+            string hash = Guid.NewGuid().ToString();
+            trimmedCommand = Regex.Replace(trimmedCommand, "@HASH@", tab);
+            #endregion
+
+            // Split into args
+            var args = Regex.Matches(trimmedCommand, @"[\""].+?[\""]|[^ ]+")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToArray();
+
+            // Clean args
+            for (int i = 0; i < args.Length; i++)
+            {
+                args[i] = args[i].Replace("\"", "");
+                args[i] = args[i].Replace(doubleQuote, "\"");
+                args[i] = args[i].Replace(and, "&&");
+                args[i] = args[i].Replace(newline, "\n");
+                args[i] = args[i].Replace(at, "@");
+                args[i] = args[i].Replace(tab, "\t");
+                args[i] = args[i].Replace(hash, "#");
+            }
+
+            // Skip if no arguments or only whitespace
+            if (args.Length < 1 || string.IsNullOrWhiteSpace(args[0]))
+                continue;
+
+            // Update returnedCode variable before running
+            UpdateReturnedCodeVariable(lastReturnedCode);
+
+            // Set args as a field or property if your CommandSwitch depends on it
+            this.args = args;
+
+            lastReturnedCode = CommandSwitch();
+
+            // Update returnedCode variable after running
+            UpdateReturnedCodeVariable(lastReturnedCode);
+        }
+
+        return lastReturnedCode;
+    }
+
+
+    private void UpdateReturnedCodeVariable(int code)
+    {
+        var variablesArray = variables.ToArray();
+        for (int i = 0; i < variablesArray.Length; i++)
+        {
+            if (variablesArray[i].name == "returnedCode")
+            {
+                variablesArray[i].value = code.ToString();
+                variables[i] = variablesArray[i];
+                break;
+            }
         }
     }
 
     public override void OnUpdate()
     {
         // Get the input
-        string input = GetCurrentLine();
+        var input = GetCurrentLine();
 
-        // Split the input into several commands if there are multiple commands or a new line
-        var commands = input.Split(["&&", "\n"], StringSplitOptions.RemoveEmptyEntries);
-
-        // Loop through the commands
-        foreach (string command in commands)
-        {
-            // Delete any spaces at the start and end of the command
-            string trimmedCommand = command.Trim();
-
-            #region @Replaces@
-            // Replace @DOUBLE@ with a UUID
-            string doubleQuote = Guid.NewGuid().ToString();
-            trimmedCommand = Regex.Replace(trimmedCommand, "@DOUBLE@", doubleQuote);
-
-            // Replace @AND@ with with a UUID
-            string and = Guid.NewGuid().ToString();
-            trimmedCommand = Regex.Replace(trimmedCommand, "@AND@", and);
-
-            // Replace @NEWLINE@ with a UUID
-            string newline = Guid.NewGuid().ToString();
-            trimmedCommand = Regex.Replace(trimmedCommand, "@NEWLINE@", newline);
-
-            // Replace @AT@ with a UUID
-            string at = Guid.NewGuid().ToString();
-            trimmedCommand = Regex.Replace(trimmedCommand, "@AT@", at);
-
-            // Replace @TAB@ with a UUID
-            string tab = Guid.NewGuid().ToString();
-            trimmedCommand = Regex.Replace(trimmedCommand, "@TAB@", tab);
-            #endregion
-
-            // Split the command into arguments
-            args = Regex.Matches(trimmedCommand, @"[\""].+?[\""]|[^ ]+")
-                .Cast<Match>()
-                .Select(m => m.Value)
-                .ToArray();
-
-            // Remove all quotes from the arguments
-            for (int i = 0; i < args.Length; i++)
-            {
-                args[i] = args[i].Replace("\"", "");
-            }
-
-            // Replace the UUIDs with the original characters
-            for (int i = 0; i < args.Length; i++)
-            {
-                args[i] = args[i].Replace(doubleQuote, "\"");
-                args[i] = args[i].Replace(and, "&&");
-                args[i] = args[i].Replace(newline, "\n");
-                args[i] = args[i].Replace(at, "@");
-                args[i] = args[i].Replace(tab, "\t");
-            }
-
-            // Check if any arguments were given
-            if (args.Length < 1) return;
-
-            // Check not whitespace
-            if (args[0] == "") return;
-
-            // Find "returnedCode" variable and update it
-            Variables[] variablesArray = variables.ToArray();
-            for (int i = 0; i < variablesArray.Length; i++)
-            {
-                if (variablesArray[i].name == "returnedCode")
-                {
-                    variablesArray[i].value = returnedCode.ToString();
-                    variables[i] = variablesArray[i];
-                    break;
-                }
-            }
-
-            // Find the command
-            returnedCode = CommandSwitch();
-
-            // Update the "returnedCode" variable
-            for (int i = 0; i < variablesArray.Length; i++)
-            {
-                if (variablesArray[i].name == "returnedCode")
-                {
-                    variablesArray[i].value = returnedCode.ToString();
-                    variables[i] = variablesArray[i];
-                    break;
-                }
-            }
-        }
+        // Execute the command
+        ExecuteCommand(input);
     }
 
     private string GetCurrentLine()
@@ -171,7 +200,17 @@ public class AzzyShell : Hero
     public int CommandSwitch()
     {
         // Argument translation
-        var resolvedCommand = Command.VariableTranslation(args);
+        var resolvedCommand = args;
+        try
+        {
+            resolvedCommand = Command.VariableResolution(args);
+        }
+        catch (Exception ex)
+        {
+            PrintLine($"[Error] {ex.Message}", Colours.Red);
+            return 3;
+        }
+
 
         if (resolvedCommand.Length == 0)
             return 1;
