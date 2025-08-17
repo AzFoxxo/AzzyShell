@@ -1,6 +1,12 @@
 #!/usr/bin/azzyshell
 
 # Copy to ~/azzyshell.ass to override shell initalisation
+
+# Greeting
 clear
 welcome
 logo
+
+# Set path
+set path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+set prompt "~"

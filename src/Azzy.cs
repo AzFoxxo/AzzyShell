@@ -6,13 +6,11 @@ using AzzyShell.Commands;
 
 partial class Azzy : HeroesPatch
 {
-    private const string version = "2.3.1";
+    private const string version = "2.3.2";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
-    private const string description = "A lightweight shell environment written in C#";
+    private const string description = "A lightweight shell environment written in C#.";
     private const string prompt = "$";
-
-    int returnedCode = 0;
     private static Azzy? instance;
 
     public Dictionary<string, ShellVariable> Variables { get; private set; } = [];
@@ -68,13 +66,13 @@ partial class Azzy : HeroesPatch
     // Add shell variables and store a reference to the shell
     public Azzy()
     {
-        SetVariable("version", version, "String");
-        SetVariable("shell", shell, "String");
-        SetVariable("author", author, "String");
-        SetVariable("description", description, "String");
-        SetVariable("prompt", prompt, "String");
-        SetVariable("returnedCode", returnedCode.ToString(), "Int");
-        SetVariable("colour", "Cyan", "String");
+        SetVariable("version", version, "String");          // Version variable
+        SetVariable("shell", shell, "String");              // Shell name variable
+        SetVariable("author", author, "String");            // Author name variable
+        SetVariable("description", description, "String");  // Description variable
+        SetVariable("prompt", prompt, "String");            // Prompt text variable
+        SetVariable("status", "0", "Int");                  // Status code variable
+        SetVariable("colour", "Cyan", "String");            // Prompt colour variable
 
         instance = this;
 
@@ -85,9 +83,8 @@ partial class Azzy : HeroesPatch
         if (File.Exists(initFilePath))
         {
             // If the config file exists, run it using the "run" command
-            returnedCode = new Run().Execute(["run", initFilePath]);
-
-            if (returnedCode != 0)
+            ExecuteCommandAndUpdateStatusCode($"run {initFilePath}");
+            if (GetVariable("status") != "0")
             {
                 // Handle any errors from the initialization script
                 PrintLine($"Error occurred while running {initFilePath}.", Colours.Red);
@@ -97,9 +94,9 @@ partial class Azzy : HeroesPatch
         else
         {
             // Run default commands if the initialization file does not exist
-            returnedCode = new Clear().Execute(["clear"]);
-            returnedCode = new Welcome().Execute(["welcome"]);
-            returnedCode = new Logo().Execute(["logo"]);
+            ExecuteCommandAndUpdateStatusCode("clear");
+            ExecuteCommandAndUpdateStatusCode("welcome");
+            ExecuteCommandAndUpdateStatusCode("logo");
         }
 
         // Check for history file and create if it doesn't exist
@@ -109,12 +106,16 @@ partial class Azzy : HeroesPatch
         }
     }
 
+    // Execute and update status code
+    public void ExecuteCommandAndUpdateStatusCode(string input)
+    {
+        SetVariable("status", $"{(int)ExecuteCommand(input)}", "Int");
+    }
+
     public int ExecuteCommand(string input)
     {
         // Split the input into several commands (support && and new lines)
         var commands = input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-
-        int lastReturnedCode = 0;
 
         foreach (string command in commands)
         {
@@ -172,23 +173,15 @@ partial class Azzy : HeroesPatch
             if (args.Length < 1 || string.IsNullOrWhiteSpace(args[0]))
                 continue;
 
-            // Update returnedCode variable before running
-            UpdateReturnedCodeVariable(lastReturnedCode);
-
             // Set args as a field or property if your CommandSwitch depends on it
             this.args = args;
 
-            lastReturnedCode = CommandSwitch();
-
-            // Update returnedCode variable after running
-            UpdateReturnedCodeVariable(lastReturnedCode);
+            // Return the result of CommandSwitch() directly
+            return CommandSwitch();
         }
 
-        return lastReturnedCode;
+        return (int)ErrorCode.Success;
     }
-
-
-    private void UpdateReturnedCodeVariable(int code) => SetVariable("returnedCode", code.ToString(), "Int");
 
     public void Tick()
     {
@@ -196,7 +189,7 @@ partial class Azzy : HeroesPatch
         var input = GetCurrentLine();
 
         // Execute the command
-        ExecuteCommand(input);
+        ExecuteCommandAndUpdateStatusCode(input);
     }
 
     private string GetCurrentLine()
@@ -267,8 +260,8 @@ partial class Azzy : HeroesPatch
             }
         }
 
-        // Command not found, check program_path for external commands
-        string pathVar = GetVariable("program_path") ?? "/bin:/usr/bin"; // Query path
+        // Command not found, check path for external commands
+        string pathVar = GetVariable("path") ?? "/bin:/usr/bin"; // Query path
         var paths = pathVar.Split(':', StringSplitOptions.RemoveEmptyEntries); // Get paths
 
         string? executablePath = null;
@@ -285,7 +278,7 @@ partial class Azzy : HeroesPatch
 
         if (executablePath is null)
         {
-            PrintLine($"Failed to find the command `{command}` in program_path", Colours.Red);
+            PrintLine($"Failed to find the command `{command}` in path", Colours.Red);
             return (int)ErrorCode.CommandNotFound;
         }
 

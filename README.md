@@ -55,7 +55,7 @@ Using `<variable>` will return the index of the variable.
 
 ### External commands
 
-If a command is not found, it will search the `program_path` for the executable.
+If a command is not found, it will search the `path` for the executable.
 
 ### Comments
 
