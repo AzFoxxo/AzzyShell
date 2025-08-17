@@ -8,10 +8,7 @@ public class Clear : Command
     {
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
-
-        // Translate variables
-        args = VariableTranslation(args);
-
+        
         // Clear the console
         // Check for errors (shouldn't be any)
         try

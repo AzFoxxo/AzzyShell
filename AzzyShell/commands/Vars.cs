@@ -9,14 +9,10 @@ public class Vars : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // List all the variables
         foreach (Variables variable in AzzyShell.GetInstance().variables) {
             // Is string
-            bool isString = false;
-            if (variable.type == "String") isString = true; else isString = false;
+            var isString = variable.type == "String";
             
             // Print the variable index in the list, the name, the value and the type
             Print($"{AzzyShell.GetInstance().variables.IndexOf(variable)}: ", Colours.Yellow);

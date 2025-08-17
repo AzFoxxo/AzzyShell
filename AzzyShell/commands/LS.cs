@@ -9,9 +9,6 @@ public class LS : Command
         // Check if args given
         if (CheckArgLength(args, 1, allowGreaterThanLength: true) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Current directory
         var currentDirectory = Directory.GetCurrentDirectory();
 

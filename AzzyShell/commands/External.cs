@@ -10,9 +10,6 @@ public class External : Command
         // Check if args given
         if (CheckArgLength(args, 1, allowGreaterThanLength: true) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Run the command in the system default shell
         if (args[0].StartsWith("!"))
         {

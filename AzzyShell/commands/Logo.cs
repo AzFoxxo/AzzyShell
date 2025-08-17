@@ -9,9 +9,6 @@ public class Logo : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Print the logo
         PrintLine(@"     ___      ________   ________  ____    ____         _______. __    __   _______  __       __      ", Colours.DarkRed);
         PrintLine(@"    /   \    |       /  |       /  \   \  /   /        /       ||  |  |  | |   ____||  |     |  |     ", Colours.Red);

@@ -9,9 +9,6 @@ public class Help : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Print list of commands
         PrintLine("Commands:");
         PrintLine("quit - Quit the app");

@@ -9,9 +9,6 @@ public class History : Command
         // Check if args given
         if (CheckArgLength(args, 1, allowGreaterThanLength: true) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Check no more than 2 args given
         if (args.Length > 2)
         {

@@ -9,9 +9,6 @@ public class Hacker : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Infinite loop
         while (true)
         {

@@ -2,7 +2,7 @@ namespace App.Commands;
 
 using Heroes;
 
-public class Command : Hero
+public abstract class Command : Hero
 {
     public virtual int Execute(string[] args) => throw new NotImplementedException();
 
@@ -25,7 +25,7 @@ public class Command : Hero
         }
     }
 
-    public string[] VariableTranslation(string[] args)
+    public static string[] VariableTranslation(string[] args)
     {
         // Loop through each argument
         var varList = AzzyShell.GetInstance().variables;

@@ -9,9 +9,6 @@ public class Log : Command
         // Check if args given
         if (CheckArgLength(args, 2) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Log the message
         PrintLine(args[1]);
 

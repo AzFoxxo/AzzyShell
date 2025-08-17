@@ -9,9 +9,6 @@ public class MKDir : Command
         // Check if args given
         if (CheckArgLength(args, 2) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Make the directory
         Directory.CreateDirectory(args[1]);
 

@@ -9,9 +9,6 @@ public class Quit : Command
         // Check if args given
         if (CheckArgLength(args, 1) != 0) return 2;
 
-        // Translate variables
-        args = VariableTranslation(args);
-
         // Quit the app
         Application.Quit();
 
