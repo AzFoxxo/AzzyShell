@@ -6,64 +6,47 @@ using AzzyShell.Commands;
 
 partial class Azzy : HeroesPatch
 {
-    private const string version = "2.3.2";
+    // Singleton
+    private static Azzy? instance;
+
+    // Constants
+    private const string version = "2.4.0";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
     private const string prompt = "$";
-    private static Azzy? instance;
 
+    // Separators
+    private static string[] separator = ["&&", "\n"];
+
+    // Substitutes
     public Dictionary<string, ShellVariable> Variables { get; private set; } = [];
+    public Dictionary<string, string> Aliases { get; private set; } = [];
 
-    private string[] args = [];
+    // Command arguments
+    private string[] commandArguments = [];
 
+    // History file path
     public string historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".history.azzy");
-    private static readonly string[] separator = ["&&", "\n"];
 
-    public bool DeleteVariable(string name) => Variables.Remove(name);
+    // Regex
+    [GeneratedRegex("@DOUBLE@")] private static partial Regex DoubleQuoteRegex();
 
-    [GeneratedRegex("@DOUBLE@")]
-    private static partial Regex DoubleQuoteRegex();
+    [GeneratedRegex("@AND@")] private static partial Regex AndRegex();
 
-    [GeneratedRegex("@AND@")]
-    private static partial Regex AndRegex();
+    [GeneratedRegex("@NEWLINE@")] private static partial Regex NewlineRegex();
 
-    [GeneratedRegex("@NEWLINE@")]
-    private static partial Regex NewlineRegex();
+    [GeneratedRegex("@AT@")] private static partial Regex AtRegex();
 
-    [GeneratedRegex("@AT@")]
-    private static partial Regex AtRegex();
+    [GeneratedRegex("@TAB@")] private static partial Regex TabRegex();
 
-    [GeneratedRegex("@TAB@")]
-    private static partial Regex TabRegex();
+    [GeneratedRegex("@HASH@")] private static partial Regex HashRegex();
 
-    [GeneratedRegex("@HASH@")]
-    private static partial Regex HashRegex();
+    [GeneratedRegex(@"""[^""]*""|[^ ]+")] public static partial Regex ArgumentSplitter();
 
-    [GeneratedRegex(@"""[^""]*""|[^ ]+")]
-    public static partial Regex ArgumentSplitter();
-
-    public void SetVariable(string name, string value, string type = "String")
-    {
-        if (VariableExists(name))
-        {
-            Variables[name].Value = value;
-            Variables[name].Type = type;
-        }
-        else
-        {
-            Variables[name] = new ShellVariable(name, value, type);
-        }
-    }
-
-    public string? GetVariable(string name)
-    {
-        return Variables.TryGetValue(name, out var variable) ? variable.Value : null;
-    }
-
-    public bool VariableExists(string name) => Variables.ContainsKey(name);
-
-    // Add shell variables and store a reference to the shell
+    /// <summary>
+    /// Constructor - shell configuration and initialisation 
+    /// </summary>
     public Azzy()
     {
         SetVariable("version", version, "String");          // Version variable
@@ -83,7 +66,7 @@ partial class Azzy : HeroesPatch
         if (File.Exists(initFilePath))
         {
             // If the config file exists, run it using the "run" command
-            ExecuteCommandAndUpdateStatusCode($"run {initFilePath}");
+            ExecuteAndCapture($"run {initFilePath}");
             if (GetVariable("status") != "0")
             {
                 // Handle any errors from the initialization script
@@ -94,9 +77,9 @@ partial class Azzy : HeroesPatch
         else
         {
             // Run default commands if the initialization file does not exist
-            ExecuteCommandAndUpdateStatusCode("clear");
-            ExecuteCommandAndUpdateStatusCode("welcome");
-            ExecuteCommandAndUpdateStatusCode("logo");
+            ExecuteAndCapture("clear");
+            ExecuteAndCapture("welcome");
+            ExecuteAndCapture("logo");
         }
 
         // Check for history file and create if it doesn't exist
@@ -106,14 +89,65 @@ partial class Azzy : HeroesPatch
         }
     }
 
-    // Execute and update status code
-    public void ExecuteCommandAndUpdateStatusCode(string input)
+    /// <summary>
+    /// Delete a variable 
+    /// </summary>
+    /// <param name="name">variable name to delete</param>
+    /// <returns>Return if the deletion was successful</returns>
+    public bool DeleteVariable(string name) => Variables.Remove(name);
+
+    /// <summary>
+    /// Set (update or create) a given variable in the shell
+    /// </summary>
+    /// <param name="name">variable name</param>
+    /// <param name="value">value</param>
+    /// <param name="type">type</param>
+    public void SetVariable(string name, string value, string type = "String")
     {
-        SetVariable("status", $"{(int)ExecuteCommand(input)}", "Int");
+        if (VariableExists(name))
+        {
+            Variables[name].Value = value;
+            Variables[name].Type = type;
+        }
+        else
+        {
+            Variables[name] = new ShellVariable(name, value, type);
+        }
     }
 
+    /// <summary>
+    /// Get the value of the shell variable
+    /// </summary>
+    /// <param name="name">variable name</param>
+    /// <returns>value of the variable</returns>
+    public string? GetVariable(string name)
+    {
+        return Variables.TryGetValue(name, out var variable) ? variable.Value : null;
+    }
+
+    /// <summary>
+    /// Check if a shell variable exists
+    /// </summary>
+    /// <param name="name">variable name</param>
+    /// <returns>true if it exists, else false</returns>
+    public bool VariableExists(string name) => Variables.ContainsKey(name);
+
+    /// <summary>
+    /// Execute the command and capture the status code in the status variable
+    /// </summary>
+    /// <param name="input">Raw command after alias resolution</param>
+    public void ExecuteAndCapture(string input) => SetVariable("status", $"{(int)ExecuteCommand(input)}", "Int");
+
+    /// <summary>
+    /// Execute raw command (requires capturing status code)
+    /// </summary>
+    /// <param name="input">Raw command after alias resolution</param>
+    /// <returns>Status code (int)</returns>
     public int ExecuteCommand(string input)
     {
+        // Apply alias to input
+        input = ResolveAliases(input);
+
         // Split the input into several commands (support && and new lines)
         var commands = input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 
@@ -174,7 +208,7 @@ partial class Azzy : HeroesPatch
                 continue;
 
             // Set args as a field or property if your CommandSwitch depends on it
-            this.args = args;
+            this.commandArguments = args;
 
             // Return the result of CommandSwitch() directly
             return CommandSwitch();
@@ -183,16 +217,23 @@ partial class Azzy : HeroesPatch
         return (int)ErrorCode.Success;
     }
 
+    /// <summary>
+    /// Tick - Read input and execute input
+    /// </summary>
     public void Tick()
     {
         // Get the input
-        var input = GetCurrentLine();
+        var input = Prompt();
 
         // Execute the command
-        ExecuteCommandAndUpdateStatusCode(input);
+        ExecuteAndCapture(input);
     }
 
-    private string GetCurrentLine()
+    /// <summary>
+    /// Displays prompt, capturing the prompt once enter his hit
+    /// </summary>
+    /// <returns>Raw prompt input</returns>
+    private string Prompt()
     {
         // Get colour and prompt from variables
         string colourStr = GetVariable("colour") ?? "green";
@@ -213,16 +254,23 @@ partial class Azzy : HeroesPatch
         return input;
     }
 
-
+    /// <summary>
+    /// Get the reference to the Azzy shell
+    /// </summary>
+    /// <returns>Reference to Azzy shell</returns>
     public static Azzy GetInstance() => instance!;
 
+    /// <summary>
+    /// Execute the given command, performing variable resolution
+    /// </summary>
+    /// <returns>status code</returns>
     public int CommandSwitch()
     {
         // Argument resolution
         string[] resolvedCommand;
         try
         {
-            resolvedCommand = Command.VariableResolution(args);
+            resolvedCommand = Command.VariableResolution(commandArguments);
         }
         catch (Exception ex)
         {
@@ -336,7 +384,29 @@ partial class Azzy : HeroesPatch
         }
     }
 
-    // Check if command is interactive
+    /// <summary>
+    /// Is the command running interactive
+    /// </summary>
+    /// <returns>True if command is interactive, else false</returns>
     private bool IsCommandInteractive() => !Console.IsInputRedirected && !Console.IsOutputRedirected;
+
+    /// <summary>
+    /// Return the command with the alias resolved
+    /// </summary>
+    /// <param name="command">Unresolved command alias</param>
+    /// <returns>Resolved alias and command</returns>
+    private string ResolveAliases(string command)
+    {
+        // Check if the alias exists
+        if (Aliases.ContainsKey(command))
+        {
+            // Substitute alias
+            string aliasValue = Aliases[command];
+            return aliasValue;
+        }
+
+        // No alias found
+        return command;
+    }
 
 }

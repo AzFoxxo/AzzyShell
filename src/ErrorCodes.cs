@@ -16,5 +16,6 @@ public enum ErrorCode
     PathNotFound = 8,
     FileReadError = 9,
     ExecutionFailure = 10,
+    AliasNotFound = 11,
     UnknownError = 100, // Unknown (generic) error code 
 }

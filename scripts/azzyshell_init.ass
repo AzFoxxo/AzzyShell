@@ -10,3 +10,6 @@ logo
 # Set path
 set path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 set prompt "~"
+
+# Aliases
+alias l ls

@@ -25,7 +25,7 @@ class HeroesPatch
     ///<summary>Print a message to the console on line in a colour.</summary>
     ///<param name="message">The message to print.</param>
     ///<param name="colour">The colour to print the message in.</param>
-    protected static void Print(string text, Colours colour = default)
+    protected static void Print(string text, Colours colour = Colours.White)
     {
         Console.ForegroundColor = Colour.Convert(colour);
         Console.Write(text);
@@ -50,7 +50,7 @@ class HeroesPatch
     /// <param name="prompt">The prompt to display.</param>
     /// <param name="colour">The colour to display the prompt in. Optional.</param>
     /// <returns>The input from the user.</returns>
-    protected static string ReadInline(string prompt, Colours colour = default)
+    protected static string ReadInline(string prompt, Colours colour = Colours.White)
     {
         // Print the prompt with colour
         Print(prompt, colour);

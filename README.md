@@ -27,6 +27,7 @@ hacker - Print 0 and 1 in a hacker style
 gaytext - Print a message in gay colours
 history - Print the command history
 run - Run a Azzy Shell Script file line-by-line
+alias - Create/update and view aliases
 ```
 
 ## Azzy Shell Script
