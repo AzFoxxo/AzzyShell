@@ -34,6 +34,7 @@ class Help : Command
             PrintLine("- history - Print the command history");
             PrintLine("- run - Run a AzzyShell Script file line-by-line");
             PrintLine("- alias - Create/update and view aliases");
+            PrintLine("- unalias - Delete an alias");
         }
         else
         {

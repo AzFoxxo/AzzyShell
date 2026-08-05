@@ -28,6 +28,7 @@ AzzyShell is a lightweight shell environment written in C#.
 - `history` - Print the command history
 - `run` - Run a AzzyShell Script file line-by-line
 - `alias` - Create/update and view aliases
+- `unalias` - Delete an alias
 
 
 ## AzzyShell Script

@@ -10,7 +10,7 @@ partial class Azzy : HeroesPatch
     private static Azzy? instance;
 
     // Constants
-    private const string version = "2.5.2";
+    private const string version = "2.5.3";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
