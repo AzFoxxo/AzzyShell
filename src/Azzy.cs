@@ -10,7 +10,7 @@ partial class Azzy : HeroesPatch
     private static Azzy? instance;
 
     // Constants
-    private const string version = "2.5.0";
+    private const string version = "2.5.1";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
@@ -276,6 +276,7 @@ partial class Azzy : HeroesPatch
         try
         {
             resolvedCommand = VariableResolution(commandArguments);
+            resolvedCommand = PathResolution(resolvedCommand);
         }
         catch (Exception ex)
         {
@@ -486,5 +487,31 @@ partial class Azzy : HeroesPatch
             '<' => '>',
             _ => throw new ArgumentException($"Unknown opening character: {open}")
         };
+    }
+
+    /// <summary>
+    /// Resolve path resolution
+    /// </summary>
+    /// <param name="args">arguments</param>
+    /// <returns>resolved arguments</returns>
+    private static string[] PathResolution(string[] args)
+    {
+        string home = Environment.GetFolderPath(
+            Environment.SpecialFolder.UserProfile
+        );
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "~")
+            {
+                args[i] = home;
+            }
+            else if (args[i].StartsWith("~/"))
+            {
+                args[i] = Path.Combine(home, args[i][2..]);
+            }
+        }
+
+        return args;
     }
 }
