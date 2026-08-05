@@ -10,14 +10,14 @@ partial class Azzy : HeroesPatch
     private static Azzy? instance;
 
     // Constants
-    private const string version = "2.4.2";
+    private const string version = "2.5.0";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
     private const string prompt = "$";
 
     // Separators
-    private static string[] separator = ["&&", "\n"];
+    private static readonly string[] separator = ["&&", "\n"];
 
     // Substitutes
     public Dictionary<string, ShellVariable> Variables { get; private set; } = [];
@@ -414,7 +414,7 @@ partial class Azzy : HeroesPatch
         return command;
     }
 
-     /// <summary>
+    /// <summary>
     /// Resolve variables
     /// </summary>
     /// <param name="args">Unresolved string array for command plus operands</param>

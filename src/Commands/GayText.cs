@@ -19,4 +19,6 @@ class GayText : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Log a message to the console in rainbow: <arg1> <arg2> etc.";
 }

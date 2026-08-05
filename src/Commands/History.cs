@@ -4,7 +4,7 @@ class History : Command
 {
     public override int Execute(string[] args)
     {
-       // Argument length validation
+        // Argument length validation
         if (!IsArgumentLengthValid(args, 1, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
@@ -19,7 +19,7 @@ class History : Command
 
             // Print success message
             PrintLine("History cleared.");
-            
+
             // Return success
             return (int)ErrorCode.Success;
         }
@@ -46,4 +46,6 @@ class History : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Display history or clear history: `history`\n`history clear` to clear.";
 }

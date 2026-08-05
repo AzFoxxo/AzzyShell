@@ -47,4 +47,6 @@ class Run : Command
 
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Run an AzzyShell script: <file>";
 }

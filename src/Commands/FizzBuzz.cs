@@ -18,7 +18,8 @@ class FizzBuzz : Command
             return (int)ErrorCode.InvalidArguments;
         }
 
-        for (int i = 0; i <= number; i++) {
+        for (int i = 0; i <= number; i++)
+        {
             var output = "";
             if (i % 3 == 0) output += "Fizz";
             if (i % 5 == 0) output += "Buzz";
@@ -29,4 +30,6 @@ class FizzBuzz : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Fizzbuzz: <fizzbuzz_number>";
 }

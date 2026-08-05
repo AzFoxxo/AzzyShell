@@ -4,8 +4,8 @@ class LS : Command
 {
     public override int Execute(string[] args)
     {
-       // Argument length validation
-        if (!IsArgumentLengthValid(args, 1))
+        // Argument length validation
+        if (!IsArgumentLengthValid(args, 1, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
         // Current directory
@@ -45,8 +45,9 @@ class LS : Command
         // New line
         PrintLine("");
 
-
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "List the directory";
 }

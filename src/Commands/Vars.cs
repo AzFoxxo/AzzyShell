@@ -31,4 +31,6 @@ class Vars : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Displays the variables and their types.";
 }

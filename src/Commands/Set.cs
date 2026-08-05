@@ -4,7 +4,7 @@ class Set : Command
 {
     public override int Execute(string[] args)
     {
-       // Argument length validation
+        // Argument length validation
         if (!IsArgumentLengthValid(args, 3))
             return (int)ErrorCode.InvalidArguments;
 
@@ -35,4 +35,6 @@ class Set : Command
 
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Define/set a variable: <var_name> <value> (supports string, bool, double, int)";
 }

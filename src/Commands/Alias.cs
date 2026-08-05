@@ -14,7 +14,7 @@ class Alias : Command
             case 2:
                 ShowAlias(args[1]);
                 break;
-                
+
             case 3:
                 SetAlias(args[1], args[2]);
                 break;
@@ -57,4 +57,6 @@ class Alias : Command
         Shell.Aliases[name] = command;
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Show all aliases, show an expanded alias or create an alias:\n`alias` Show all aliases\n`alias <alias_name>` show that alias\n`alias <alias_name> <aliased_command>`";
 }

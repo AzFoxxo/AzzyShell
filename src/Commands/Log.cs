@@ -19,4 +19,6 @@ class Log : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Log a message to the console: <arg1> <arg2> etc.";
 }

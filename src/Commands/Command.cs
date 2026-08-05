@@ -21,4 +21,9 @@ abstract class Command : HeroesPatch
 
         return true;  // Return true when the length matches
     }
+
+    public virtual string HelpString()
+    {
+        return "Command does not contain a help page.";
+    }
 }

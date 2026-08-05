@@ -7,7 +7,7 @@ class Clear : Command
         // Argument length validation
         if (!IsArgumentLengthValid(args, 1))
             return (int)ErrorCode.InvalidArguments;
-        
+
         // Clear the console
         // Check for errors (shouldn't be any)
         try
@@ -24,8 +24,9 @@ class Clear : Command
             return (int)ErrorCode.ConsoleClearFailed;
         }
 
-
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Clear the console.";
 }

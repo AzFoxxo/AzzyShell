@@ -38,4 +38,6 @@ class Cat : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Display contents of files: <file1> <file2> etc.";
 }

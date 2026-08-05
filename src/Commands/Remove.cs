@@ -4,7 +4,7 @@ class Remove : Command
 {
     public override int Execute(string[] args)
     {
-       // Argument length validation
+        // Argument length validation
         if (!IsArgumentLengthValid(args, 2))
             return (int)ErrorCode.InvalidArguments;
 
@@ -31,11 +31,13 @@ class Remove : Command
         {
             // Delete the file
             File.Delete(args[1]);
-        } else if (dir)
+        }
+        else if (dir)
         {
             // Delete the directory recursively
             Directory.Delete(args[1], true);
-        } else
+        }
+        else
         {
             // Return error
             return (int)ErrorCode.PathNotFound;
@@ -44,4 +46,6 @@ class Remove : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Remove a file/dir: <file_dir>";
 }

@@ -19,8 +19,9 @@ class PWD : Command
         // Print the current directory
         PrintLine(dir, Colours.Blue);
 
-
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Prints the current working directory";
 }

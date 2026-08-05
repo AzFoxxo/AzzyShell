@@ -14,4 +14,9 @@ class Quit : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString()
+    {
+        return "quits the shell.";
+    }
 }

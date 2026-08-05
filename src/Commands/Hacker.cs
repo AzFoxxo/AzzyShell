@@ -27,4 +27,6 @@ class Hacker : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Displays 0/1 repeated like a matrix display (escape to quit).";
 }

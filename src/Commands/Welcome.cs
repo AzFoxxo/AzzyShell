@@ -33,6 +33,8 @@ class Welcome : Command
         PrintLine("to get started.");
 
         // Return success
-        return (int)ErrorCode.Success;;
+        return (int)ErrorCode.Success; ;
     }
+
+    public override string HelpString() => "AzzyShell built-in welcome display.";
 }

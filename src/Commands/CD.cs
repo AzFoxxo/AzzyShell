@@ -31,4 +31,6 @@ class CD : Command
         // Return success
         return (int)ErrorCode.Success;
     }
+
+    public override string HelpString() => "Change directory: <dir>";
 }
