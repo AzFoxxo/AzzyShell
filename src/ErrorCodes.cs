@@ -17,5 +17,6 @@ public enum ErrorCode
     FileReadError = 9,
     ExecutionFailure = 10,
     AliasNotFound = 11,
+    AliasRecursionLimitExceeded = 12,
     UnknownError = 100, // Unknown (generic) error code 
 }

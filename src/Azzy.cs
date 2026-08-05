@@ -10,7 +10,7 @@ partial class Azzy : HeroesPatch
     private static Azzy? instance;
 
     // Constants
-    private const string version = "2.5.1";
+    private const string version = "2.5.2";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
@@ -18,6 +18,7 @@ partial class Azzy : HeroesPatch
 
     // Separators
     private static readonly string[] separator = ["&&", "\n"];
+    private const int AliasRecursionLimit = 20;
 
     // Substitutes
     public Dictionary<string, ShellVariable> Variables { get; private set; } = [];
@@ -145,9 +146,6 @@ partial class Azzy : HeroesPatch
     /// <returns>Status code (int)</returns>
     public int ExecuteCommand(string input)
     {
-        // Apply alias to input
-        input = ResolveAliases(input);
-
         // Split the input into several commands (support && and new lines)
         var commands = input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 
@@ -272,10 +270,39 @@ partial class Azzy : HeroesPatch
     public int CommandSwitch()
     {
         // Argument resolution
-        string[] resolvedCommand;
+        string[] resolvedCommand = commandArguments;
+
+        if (resolvedCommand.Length == 0)
+            return (int)ErrorCode.InvalidArguments;
+
+        // Resolve command aliases first
+        var command = resolvedCommand[0];
+        int aliasDepth = 0;
+
+        while (!command.Contains('/') && Aliases.TryGetValue(command, out var alias))
+        {
+            aliasDepth++;
+
+            // Prevent infinite alias recursion
+            if (aliasDepth > AliasRecursionLimit)
+            {
+                PrintLine("Alias recursion limit exceeded.", Colours.Red);
+                return (int)ErrorCode.AliasRecursionLimitExceeded;
+            }
+
+            var aliasArgs = ArgumentSplitter().Matches(alias)
+                .Cast<Match>()
+                .Select(m => m.Value.Trim('"'))
+                .ToArray();
+
+            resolvedCommand = [.. aliasArgs, .. resolvedCommand.Skip(1)];
+            command = resolvedCommand[0];
+        }
+
         try
         {
-            resolvedCommand = VariableResolution(commandArguments);
+            // Resolve variables and paths after alias expansion
+            resolvedCommand = VariableResolution(resolvedCommand);
             resolvedCommand = PathResolution(resolvedCommand);
         }
         catch (Exception ex)
@@ -284,11 +311,7 @@ partial class Azzy : HeroesPatch
             return (int)ErrorCode.ExecutionFailure;
         }
 
-        if (resolvedCommand.Length == 0)
-            return (int)ErrorCode.InvalidArguments;
-
-        // Get the command
-        var command = resolvedCommand[0];
+        command = resolvedCommand[0];
 
         // Check for built-in commands
         var commandType = Assembly.GetExecutingAssembly()
@@ -395,25 +418,6 @@ partial class Azzy : HeroesPatch
     /// </summary>
     /// <returns>True if command is interactive, else false</returns>
     private bool IsCommandInteractive() => !Console.IsInputRedirected && !Console.IsOutputRedirected;
-
-    /// <summary>
-    /// Return the command with the alias resolved
-    /// </summary>
-    /// <param name="command">Unresolved command alias</param>
-    /// <returns>Resolved alias and command</returns>
-    private string ResolveAliases(string command)
-    {
-        // Check if the alias exists
-        if (Aliases.ContainsKey(command))
-        {
-            // Substitute alias
-            string aliasValue = Aliases[command];
-            return aliasValue;
-        }
-
-        // No alias found
-        return command;
-    }
 
     /// <summary>
     /// Resolve variables

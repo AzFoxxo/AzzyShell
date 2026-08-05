@@ -4,31 +4,36 @@ class Alias : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
-        switch (args.Length)
+        // Show all aliases
+        if (args.Length == 1)
         {
-            case 1:
-                ListAliases();
-                break;
-
-            case 2:
-                ShowAlias(args[1]);
-                break;
-
-            case 3:
-                SetAlias(args[1], args[2]);
-                break;
-
-            default:
-                return (int)ErrorCode.InvalidArguments;
+            return ListAliases();
         }
 
-        return (int)ErrorCode.Success;
+        // Show a specific alias
+        if (args.Length == 2)
+        {
+            return ShowAlias(args[1]);
+        }
+
+        // Create/update alias
+        if (args.Length >= 3)
+        {
+            return SetAlias(args[1], string.Join(' ', args.Skip(2)));
+        }
+
+        return (int)ErrorCode.InvalidArguments;
     }
 
-    // display all the aliases
+    // Display all aliases
     private int ListAliases()
     {
+        if (Shell.Aliases.Count == 0)
+        {
+            PrintLine("No aliases defined.", Colours.Yellow);
+            return (int)ErrorCode.Success;
+        }
+
         foreach (var alias in Shell.Aliases)
         {
             PrintLine($"alias {alias.Key} \"{alias.Value}\"", Colours.Cyan);
@@ -40,23 +45,46 @@ class Alias : Command
     // Show expanded alias for given alias
     private int ShowAlias(string name)
     {
-        if (Shell.Aliases.ContainsKey(name))
+        if (Shell.Aliases.TryGetValue(name, out var command))
         {
-            PrintLine($"{name} \"{Shell.Aliases[name]}\"", Colours.Cyan);
+            PrintLine($"alias {name} \"{command}\"", Colours.Cyan);
             return (int)ErrorCode.Success;
         }
 
-        PrintLine($"Error: Alias not found", Colours.Red);
+        PrintLine($"Error: Alias '{name}' not found.", Colours.Red);
         return (int)ErrorCode.AliasNotFound;
     }
 
     // Set an alias
     private int SetAlias(string name, string command)
     {
-        // Create/update alias
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(command))
+        {
+            PrintLine("Alias name and command cannot be empty.", Colours.Red);
+            return (int)ErrorCode.InvalidArguments;
+        }
+
         Shell.Aliases[name] = command;
+
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Show all aliases, show an expanded alias or create an alias:\n`alias` Show all aliases\n`alias <alias_name>` show that alias\n`alias <alias_name> <aliased_command>`";
+    public override string HelpString() =>
+        """
+        Manage command aliases:
+
+        `alias`
+            Show all aliases.
+
+        `alias <alias_name>`
+            Show a specific alias.
+
+        `alias <alias_name> <command>`
+            Create or update an alias.
+
+        Examples:
+            alias ll ls -lah
+            alias home cd ~
+            alias gs git status
+        """;
 }
