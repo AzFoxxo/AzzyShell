@@ -57,15 +57,85 @@ class HeroesPatch
 
         var input = new System.Text.StringBuilder();
         int cursorPos = 0;
+        int promptWidth = GetDisplayWidth(prompt);
+        int historyIndex = -1;
+        string draftInput = string.Empty;
+        int renderedLength = 0;
+        var shellHistory = Azzy.GetInstance().HistoryEntries;
+
+        void ReplaceInput(string newValue)
+        {
+            input.Clear();
+            input.Append(newValue);
+            cursorPos = input.Length;
+        }
 
         void RedrawInput()
         {
             int currentLine = Console.CursorTop;
-            int cursorLeft = prompt.Length;
+            int cursorLeft = promptWidth;
+            int clearWidth = Math.Max(renderedLength, input.Length) + 1;
 
             Console.SetCursorPosition(cursorLeft, currentLine);
-            Console.Write(input.ToString() + " "); // Clear leftover characters
+            Console.Write(new string(' ', clearWidth));
+            Console.SetCursorPosition(cursorLeft, currentLine);
+            Console.Write(input.ToString());
+            renderedLength = input.Length;
             Console.SetCursorPosition(cursorLeft + cursorPos, currentLine);
+        }
+
+        void ShowHistoryEntry(int newIndex)
+        {
+            if (newIndex < 0 || newIndex >= shellHistory.Count)
+                return;
+
+            if (historyIndex == -1)
+                draftInput = input.ToString();
+
+            historyIndex = newIndex;
+            ReplaceInput(shellHistory[historyIndex]);
+            RedrawInput();
+        }
+
+        void ExitHistoryMode()
+        {
+            if (historyIndex == -1)
+                return;
+
+            historyIndex = -1;
+            ReplaceInput(draftInput);
+            RedrawInput();
+        }
+
+        void MoveHistoryUp()
+        {
+            if (shellHistory.Count == 0)
+                return;
+
+            if (historyIndex == -1)
+            {
+                ShowHistoryEntry(shellHistory.Count - 1);
+                return;
+            }
+
+            if (historyIndex > 0)
+            {
+                ShowHistoryEntry(historyIndex - 1);
+            }
+        }
+
+        void MoveHistoryDown()
+        {
+            if (historyIndex == -1)
+                return;
+
+            if (historyIndex < shellHistory.Count - 1)
+            {
+                ShowHistoryEntry(historyIndex + 1);
+                return;
+            }
+
+            ExitHistoryMode();
         }
 
         while (true)
@@ -93,8 +163,18 @@ class HeroesPatch
                     Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
                 }
             }
+            else if (keyInfo.Key == ConsoleKey.UpArrow)
+            {
+                MoveHistoryUp();
+            }
+            else if (keyInfo.Key == ConsoleKey.DownArrow)
+            {
+                MoveHistoryDown();
+            }
             else if (keyInfo.Key == ConsoleKey.Backspace)
             {
+                ExitHistoryMode();
+
                 if (cursorPos > 0)
                 {
                     cursorPos--;
@@ -104,6 +184,7 @@ class HeroesPatch
             }
             else if (!char.IsControl(keyInfo.KeyChar))
             {
+                ExitHistoryMode();
                 input.Insert(cursorPos, keyInfo.KeyChar);
                 cursorPos++;
                 RedrawInput();
@@ -111,6 +192,25 @@ class HeroesPatch
         }
 
         return input.ToString();
+    }
+
+    private static int GetDisplayWidth(string text, int tabSize = 8)
+    {
+        int width = 0;
+
+        foreach (char c in text)
+        {
+            if (c == '\t')
+            {
+                width += tabSize - (width % tabSize);
+            }
+            else
+            {
+                width++;
+            }
+        }
+
+        return width;
     }
 
     ///<summary>Print a message to the console.</summary>

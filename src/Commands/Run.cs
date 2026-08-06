@@ -18,34 +18,14 @@ class Run : Command
 
         try
         {
-            using var sr = new StreamReader(filename);
-
-            string? line;
-            while ((line = sr.ReadLine()) != null)
-            {
-                line = line.Trim();
-
-                // Don't skip comments, but still handle empty lines
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-
-                // Execute each command line (assuming Shell.ExecuteCommand exists)
-                int result = Shell.ExecuteCommand(line);
-                if (result != 0)
-                {
-                    PrintLine($"Command failed: {line}", Colours.Red);
-                    // Decide if you want to continue or break on error
-                    // break;
-                }
-            }
+            string script = File.ReadAllText(filename);
+            return Shell.ExecuteCommand(script);
         }
         catch (Exception ex)
         {
             PrintLine($"Error reading file: {ex.Message}", Colours.Red);
             return (int)ErrorCode.FileReadError;
         }
-
-        return (int)ErrorCode.Success;
     }
 
     public override string HelpString() => "Run an AzzyShell script: <file>";

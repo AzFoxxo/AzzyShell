@@ -5,15 +5,21 @@ class Set : Command
     public override int Execute(string[] args)
     {
         // Argument length validation
-        if (!IsArgumentLengthValid(args, 3))
+        if (args.Length < 2)
+        {
+            PrintLine("'set' takes at least 1 argument(s), 0 argument(s) given.", Colours.Red);
             return (int)ErrorCode.InvalidArguments;
+        }
 
         string name = args[1];
-        string value = args[2];
+        string value = args.Length >= 3 ? string.Join(' ', args.Skip(2)) : string.Empty;
         string type;
 
-        // Determine type based on value
-        if (int.TryParse(value, out _))
+        if (args.Length < 3)
+        {
+            type = "Null";
+        }
+        else if (int.TryParse(value, out _))
         {
             type = "Int";
         }
@@ -36,5 +42,5 @@ class Set : Command
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Define/set a variable: <var_name> <value> (supports string, bool, double, int)";
+    public override string HelpString() => "Define/set a variable: <var_name> [value] (supports string, bool, double, int, null)";
 }

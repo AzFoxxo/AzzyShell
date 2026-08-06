@@ -15,13 +15,16 @@ class Vars : Command
             var variable = kvp.Value;
 
             bool isString = variable.Type == "String";
+            bool isNull = variable.Type == "Null";
 
             Print($"{index}: ", Colours.Yellow);
             Print($"{variable.Type} ", Colours.DarkRed);
             Print($"{variable.Name} ", Colours.Green);
             Print("= ", Colours.White);
             if (isString)
-                PrintLine($"\"{variable.Value}\"", Colours.Blue);
+                PrintLine($"\"{ScriptText.UnwrapLiteral(variable.Value)}\"", Colours.Blue);
+            else if (isNull)
+                PrintLine("null", Colours.Blue);
             else
                 PrintLine($"{variable.Value}", Colours.Blue);
 
