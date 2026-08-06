@@ -1,34 +1,81 @@
 namespace AzzyShell.Commands;
 
-class CD : Command
+class Cd : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
-        if (!IsArgumentLengthValid(args, 2))
+        // Allow `cd` with no arguments and `cd <dir>` with one argument
+        if (args.Length > 2)
             return (int)ErrorCode.InvalidArguments;
 
-        string targetDir = args[1];
+        string targetDir = args.Length == 1 ? "~" : args[1];
 
-        // Check if the provided path is absolute or relative
-        string fullPath = Path.IsPathRooted(targetDir)
-            ? targetDir
-            : Path.Combine(Directory.GetCurrentDirectory(), targetDir);
-
-        // Check if the directory exists
-        if (Directory.Exists(fullPath))
+        if (targetDir == "-")
         {
-            Directory.SetCurrentDirectory(fullPath);
+            if (Shell.PreviousDirectory is null)
+            {
+                PrintLine("No previous directory.", Colours.Red);
+                return (int)ErrorCode.DirectoryNotFound;
+            }
+
+            targetDir = Shell.PreviousDirectory;
         }
-        else
+
+        targetDir = ResolvePath(targetDir);
+
+        if (!Directory.Exists(targetDir))
         {
             PrintLine($"Directory does not exist: {targetDir}", Colours.Red);
             return (int)ErrorCode.DirectoryNotFound;
         }
 
-        // Return success
+        try
+        {
+            string previousDirectory = Directory.GetCurrentDirectory();
+
+            Directory.SetCurrentDirectory(targetDir);
+
+            Shell.PreviousDirectory = previousDirectory;
+        }
+        catch (Exception ex)
+        {
+            PrintLine($"Failed to change directory: {ex.Message}", Colours.Red);
+            return (int)ErrorCode.ExecutionFailure;
+        }
+
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Change directory: <dir>";
+    private static string ResolvePath(string path)
+    {
+        if (path == "~" || path.StartsWith("~/"))
+        {
+            string home = Environment.GetFolderPath(
+                Environment.SpecialFolder.UserProfile
+            );
+
+            return path == "~"
+                ? home
+                : Path.Combine(home, path[2..]);
+        }
+
+        return path;
+    }
+
+    public override string HelpString() =>
+        """
+        Change the current directory:
+
+        `cd`
+            Change to the user's home directory.
+
+        `cd <dir>`
+            Change to a directory.
+
+        `cd ~`
+            Change to the user's home directory.
+
+        `cd -`
+            Return to the previous directory.
+        """;
 }

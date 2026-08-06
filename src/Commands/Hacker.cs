@@ -4,29 +4,24 @@ class Hacker : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
         if (!IsArgumentLengthValid(args, 1))
             return (int)ErrorCode.InvalidArguments;
 
-        // Infinite loop
         while (true)
         {
-            // Randomly choose a number between 0 and 1 (dotnet)
-            int random = new Random().Next(0, 2);
+            if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                break;
 
-            // Print the logo
+            int random = Random.Shared.Next(0, 2);
+
             Print(random.ToString(), Colours.Green);
-
-            // Break loop if escape key is pressed (dotnet)
-            if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape) break;
         }
 
-        // Print a new line
         PrintLine("");
 
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Displays 0/1 repeated like a matrix display (escape to quit).";
+    public override string HelpString() =>
+        "Display a Matrix-style stream of 0s and 1s (press Escape to quit).";
 }

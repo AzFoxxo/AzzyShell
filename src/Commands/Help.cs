@@ -6,45 +6,38 @@ class Help : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
         if (!IsArgumentLengthValid(args, 1, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
         if (args.Length < 2)
         {
-            // Print list of commands
             PrintLine("Commands:");
-            PrintLine("- quit - Quit the app");
-            PrintLine("- help - Show this help message");
-            PrintLine("- ls - List all files and directories in the current directory");
-            PrintLine("- pwd - Print the current directory");
-            PrintLine("- clear - Clear the console");
-            PrintLine("- cd - Change the current directory");
-            PrintLine("- touch - Update timetamp of a file or create a new file");
-            PrintLine("- mkdir - Create a new directory");
-            PrintLine("- remove - Remove a file or directory");
-            PrintLine("- cat - Print the contents of a file");
-            PrintLine("- log - Log a message to the console");
-            PrintLine("- fizzbuzz - Print the FizzBuzz sequence up to a given number");
-            PrintLine("- set - Set a variable");
-            PrintLine("- vars - List all variables");
-            PrintLine("- logo - Print the Azzy logo");
-            PrintLine("- hacker - Print 0 and 1 in a hacker style");
-            PrintLine("- gaytext - Print a message in gay colours");
-            PrintLine("- history - Print the command history");
-            PrintLine("- run - Run an AzzyShell script file");
-            PrintLine("- alias - Create/update and view aliases");
-            PrintLine("- unalias - Delete an alias");
+
+            var commands = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t =>
+                    typeof(Command).IsAssignableFrom(t) &&
+                    !t.IsAbstract &&
+                    t.Namespace == "AzzyShell.Commands")
+                .OrderBy(t => t.Name);
+
+            foreach (var command in commands)
+            {
+                if (Activator.CreateInstance(command) is Command instance)
+                {
+                    PrintLine($"- {command.Name.ToLower()} - {instance.HelpString()}");
+                }
+            }
         }
         else
         {
-            // Perform foreach
             foreach (var commandName in args.Skip(1))
             {
                 var type = Assembly.GetExecutingAssembly()
                     .GetTypes()
                     .FirstOrDefault(t =>
-                        t.Namespace == "AzzyShell.Commands" &&
+                        typeof(Command).IsAssignableFrom(t) &&
+                        !t.IsAbstract &&
                         t.Name.Equals(commandName, StringComparison.OrdinalIgnoreCase));
 
                 if (type is null)
@@ -64,9 +57,9 @@ class Help : Command
             }
         }
 
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Display's this help info `help` or `help <command> <command> to display help for specific commands`";
+    public override string HelpString() =>
+        "Display help information: `help` or `help <command>`.";
 }

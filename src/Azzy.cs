@@ -32,6 +32,15 @@ partial class Azzy : HeroesPatch
     // History file path
     public string historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".history.azzy");
 
+    // Previous directory for 'cd -' command
+    private string? previousDirectory;
+
+    public string? PreviousDirectory
+    {
+        get => previousDirectory;
+        set => previousDirectory = value;
+    }
+
     /// <summary>
     /// Constructor - shell configuration and initialisation 
     /// </summary>

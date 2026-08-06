@@ -4,48 +4,41 @@ class Remove : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
-        if (!IsArgumentLengthValid(args, 2))
+        if (!IsArgumentLengthValid(args, 2, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
-        // Flags
-        bool file = false;
-        bool dir = false;
-
-        // Check if the file exists
-        if (File.Exists(args[1]))
+        foreach (var path in args.Skip(1))
         {
-            // Set the file flag
-            file = true;
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            else if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+            else
+            {
+                PrintLine($"Path not found: {path}", Colours.Red);
+                return (int)ErrorCode.PathNotFound;
+            }
         }
 
-        // Check if the directory exists
-        if (Directory.Exists(args[1]))
-        {
-            // Set the file flag
-            dir = true;
-        }
-
-        // Check if the file flag is set
-        if (file)
-        {
-            // Delete the file
-            File.Delete(args[1]);
-        }
-        else if (dir)
-        {
-            // Delete the directory recursively
-            Directory.Delete(args[1], true);
-        }
-        else
-        {
-            // Return error
-            return (int)ErrorCode.PathNotFound;
-        }
-
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Remove a file/dir: <file_dir>";
+    public override string HelpString() =>
+        """
+        Remove files or directories:
+
+        `remove <path1> [path2] ...`
+
+        Files are deleted directly.
+        Directories are deleted recursively.
+
+        Examples:
+            remove file.txt
+            remove file1.txt file2.txt
+            remove old_folder
+        """;
 }

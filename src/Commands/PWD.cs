@@ -1,27 +1,17 @@
 namespace AzzyShell.Commands;
 
-class PWD : Command
+class Pwd : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
         if (!IsArgumentLengthValid(args, 1))
             return (int)ErrorCode.InvalidArguments;
 
-        // Get the current directory checking for errors
-        var dir = Directory.GetCurrentDirectory();
-        if (dir == null)
-        {
-            PrintLine("Error getting current directory");
-            return (int)ErrorCode.DirectoryNotFound;
-        }
+        PrintLine(Directory.GetCurrentDirectory(), Colours.Blue);
 
-        // Print the current directory
-        PrintLine(dir, Colours.Blue);
-
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Prints the current working directory";
+    public override string HelpString() =>
+        "Print the current working directory.";
 }

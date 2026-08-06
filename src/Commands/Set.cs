@@ -4,43 +4,50 @@ class Set : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
-        if (args.Length < 2)
-        {
-            PrintLine("'set' takes at least 1 argument(s), 0 argument(s) given.", Colours.Red);
+        if (!IsArgumentLengthValid(args, 3))
             return (int)ErrorCode.InvalidArguments;
-        }
 
         string name = args[1];
-        string value = args.Length >= 3 ? string.Join(' ', args.Skip(2)) : string.Empty;
-        string type;
+        string value = args[2];
 
-        if (args.Length < 3)
-        {
-            type = "Null";
-        }
-        else if (int.TryParse(value, out _))
-        {
-            type = "Int";
-        }
-        else if (double.TryParse(value, out _))
-        {
-            type = "Double";
-        }
-        else if (bool.TryParse(value, out _))
-        {
-            type = "Bool";
-        }
-        else
-        {
-            type = "String";
-        }
+        string type = DetectType(value).ToString();
 
-        // Use the SetVariable method to add or update the variable
         Shell.SetVariable(name, value, type);
 
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Define/set a variable: <var_name> [value] (supports string, bool, double, int, null)";
+    private static VariableType DetectType(string value)
+    {
+        if (int.TryParse(value, out _))
+            return VariableType.Int;
+
+        if (double.TryParse(value, out _))
+            return VariableType.Double;
+
+        if (bool.TryParse(value, out _))
+            return VariableType.Bool;
+
+        return VariableType.String;
+    }
+
+    public override string HelpString() =>
+    """
+    Define or update a variable:
+
+    `set <name> [value]`
+
+    Automatically detects types:
+        Int
+        Double
+        Bool
+        String
+        Null
+
+    Examples:
+        set age 20
+        set enabled true
+        set name Az
+        set empty
+    """;
 }

@@ -1,19 +1,20 @@
 namespace AzzyShell.Commands;
 
-class MKDir : Command
+class Mkdir : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
-        if (!IsArgumentLengthValid(args, 2))
+        if (!IsArgumentLengthValid(args, 2, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
-        // Make the directory
-        Directory.CreateDirectory(args[1]);
+        foreach (var directory in args.Skip(1))
+        {
+            Directory.CreateDirectory(directory);
+        }
 
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Creates a directory: <dir>";
+    public override string HelpString() =>
+        "Create one or more directories: <dir1> <dir2> ...";
 }

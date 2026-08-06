@@ -4,29 +4,22 @@ class Clear : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
         if (!IsArgumentLengthValid(args, 1))
             return (int)ErrorCode.InvalidArguments;
 
-        // Clear the console
-        // Check for errors (shouldn't be any)
         try
         {
             Console.Clear();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            // Print the error
-            PrintLine($"Exception occurred while clearing the console", Colours.Red);
-            PrintLine(e.Message, Colours.Red);
-
-            // Return error - 454 for no command
+            PrintLine($"Failed to clear console: {ex.Message}", Colours.Red);
             return (int)ErrorCode.ConsoleClearFailed;
         }
 
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Clear the console.";
+    public override string HelpString() =>
+        "Clear the console.";
 }

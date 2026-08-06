@@ -4,32 +4,31 @@ class FizzBuzz : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
         if (!IsArgumentLengthValid(args, 2))
             return (int)ErrorCode.InvalidArguments;
 
-        // Try to parse the number
-        if (!int.TryParse(args[1], out int number))
+        if (!int.TryParse(args[1], out int limit))
         {
-            // Print error
-            PrintLine("Invalid number");
-
-            // Return error
+            PrintLine("Invalid number.", Colours.Red);
             return (int)ErrorCode.InvalidArguments;
         }
 
-        for (int i = 0; i <= number; i++)
+        for (int i = 1; i <= limit; i++)
         {
-            var output = "";
-            if (i % 3 == 0) output += "Fizz";
-            if (i % 5 == 0) output += "Buzz";
-            if (output == "") output = i.ToString();
-            PrintLine(output);
+            string output = string.Empty;
+
+            if (i % 3 == 0)
+                output += "Fizz";
+
+            if (i % 5 == 0)
+                output += "Buzz";
+
+            PrintLine(string.IsNullOrEmpty(output) ? i.ToString() : output);
         }
 
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "Fizzbuzz: <fizzbuzz_number>";
+    public override string HelpString() =>
+        "Print the FizzBuzz sequence up to a number: <limit>";
 }

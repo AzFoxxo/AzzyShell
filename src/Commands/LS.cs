@@ -1,53 +1,50 @@
 namespace AzzyShell.Commands;
 
-class LS : Command
+class Ls : Command
 {
     public override int Execute(string[] args)
     {
-        // Argument length validation
         if (!IsArgumentLengthValid(args, 1, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
 
-        // Current directory
-        var currentDirectory = Directory.GetCurrentDirectory();
+        var paths = args.Skip(1).ToArray();
 
-        // Get directory provided (if any)
-        if (args.Length == 2)
+        if (paths.Length == 0)
         {
-            // Check if directory exists
-            if (!Directory.Exists(args[1]))
+            paths = [Directory.GetCurrentDirectory()];
+        }
+
+        foreach (var path in paths)
+        {
+            if (!Directory.Exists(path))
             {
-                PrintLine("Directory does not exist!", Colours.Red);
+                PrintLine($"Directory not found: {path}", Colours.Red);
                 return (int)ErrorCode.DirectoryNotFound;
             }
 
-            // Set current directory to provided directory
-            currentDirectory = args[1];
+            var directory = new DirectoryInfo(path);
+
+            foreach (var dir in directory.GetDirectories())
+            {
+                Print($"{dir.Name}  ", Colours.Blue);
+            }
+
+            foreach (var file in directory.GetFiles())
+            {
+                Print($"{file.Name}  ", Colours.Green);
+            }
+
+            PrintLine("");
+
+            if (paths.Length > 1)
+            {
+                PrintLine("");
+            }
         }
 
-        // List all the directories in the current directory
-        foreach (var dir in Directory.GetDirectories(currentDirectory))
-        {
-            // Print the directory name
-            Print(Path.GetFileName(dir) + ", ", Colours.Blue);
-        }
-
-        // New line
-        PrintLine("");
-
-        // List all the directories in the current directory
-        foreach (var file in Directory.GetFiles(currentDirectory))
-        {
-            var fileInfo = new FileInfo(file);
-            Print($"{fileInfo.Name}, ", Colours.Green);
-        }
-
-        // New line
-        PrintLine("");
-
-        // Return success
         return (int)ErrorCode.Success;
     }
 
-    public override string HelpString() => "List the directory";
+    public override string HelpString() =>
+        "List files and directories: [path1] [path2] ...";
 }
