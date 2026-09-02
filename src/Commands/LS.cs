@@ -2,7 +2,7 @@ namespace AzzyShell.Commands;
 
 class Ls : Command
 {
-    public override int Execute(string[] args)
+    public override int Execute(string[] args, CommandContext context)
     {
         if (!IsArgumentLengthValid(args, 1, allowGreaterThanLength: true))
             return (int)ErrorCode.InvalidArguments;
@@ -24,15 +24,22 @@ class Ls : Command
 
             var directory = new DirectoryInfo(path);
 
-            foreach (var dir in directory.GetDirectories())
+            if (!Context.IsInteractiveOutput)
             {
-                Print($"{dir.Name}  ", Colours.Blue);
+                foreach (var dir in directory.GetDirectories())
+                    PrintLine(dir.Name, Colours.Blue);
+
+                foreach (var file in directory.GetFiles())
+                    PrintLine(file.Name, Colours.Green);
+
+                continue;
             }
 
+            foreach (var dir in directory.GetDirectories())
+                Print($"{dir.Name}  ", Colours.Blue);
+
             foreach (var file in directory.GetFiles())
-            {
                 Print($"{file.Name}  ", Colours.Green);
-            }
 
             PrintLine("");
 

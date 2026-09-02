@@ -2,7 +2,7 @@ namespace AzzyShell.Commands;
 
 class Cd : Command
 {
-    public override int Execute(string[] args)
+    public override int Execute(string[] args, CommandContext context)
     {
         // Allow `cd` with no arguments and `cd <dir>` with one argument
         if (args.Length > 2)

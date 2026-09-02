@@ -2,14 +2,15 @@ namespace AzzyShell.Commands;
 
 class Clear : Command
 {
-    public override int Execute(string[] args)
+    public override int Execute(string[] args, CommandContext context)
     {
         if (!IsArgumentLengthValid(args, 1))
             return (int)ErrorCode.InvalidArguments;
 
         try
         {
-            Console.Clear();
+            if (Context.IsInteractiveOutput)
+                Context.Output.Write("\u001b[2J\u001b[H");
         }
         catch (Exception ex)
         {

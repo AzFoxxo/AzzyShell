@@ -2,7 +2,7 @@ namespace AzzyShell.Commands;
 
 class Alias : Command
 {
-    public override int Execute(string[] args)
+    public override int Execute(string[] args, CommandContext context)
     {
         // Show all aliases
         if (args.Length == 1)

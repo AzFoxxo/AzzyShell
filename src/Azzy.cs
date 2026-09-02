@@ -3,13 +3,13 @@ namespace AzzyShell;
 using System.Reflection;
 using AzzyShell.Commands;
 
-partial class Azzy : HeroesPatch
+partial class Azzy
 {
     // Singleton
     private static Azzy? instance;
 
     // Constants
-    private const string version = "3.0.0";
+    private const string version = "3.1.0";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
@@ -67,7 +67,7 @@ partial class Azzy : HeroesPatch
             if (GetVariable("status") != "0")
             {
                 // Handle any errors from the initialization script
-                PrintLine($"Error occurred while running {initFilePath}.", Colours.Red);
+                Console.Error.WriteLine($"Error occurred while running {initFilePath}.");
                 return;
             }
         }
@@ -179,7 +179,11 @@ partial class Azzy : HeroesPatch
     /// <param name="inputArgs">Command and arguments</param>
     /// <param name="standardInput">Optional stdin content</param>
     /// <returns>Status code</returns>
-    public int ExecuteCommandArray(string[]? inputArgs = null, string? standardInput = null, bool forceCaptureStreams = false)
+    public int ExecuteCommandArray(
+        string[]? inputArgs = null,
+        string? standardInput = null,
+        bool forceCaptureStreams = false,
+        CommandContext? context = null)
     {
         var resolvedCommand = inputArgs ?? commandArguments;
 
@@ -197,7 +201,7 @@ partial class Azzy : HeroesPatch
             // Prevent infinite alias recursion
             if (aliasDepth > AliasRecursionLimit)
             {
-                PrintLine("Alias recursion limit exceeded.", Colours.Red);
+                Console.Error.WriteLine("Alias recursion limit exceeded.");
                 return (int)ErrorCode.AliasRecursionLimitExceeded;
             }
 
@@ -217,7 +221,7 @@ partial class Azzy : HeroesPatch
         }
         catch (Exception ex)
         {
-            PrintLine($"[Error] {ex.Message}", Colours.Red);
+            Console.Error.WriteLine($"[Error] {ex.Message}");
             return (int)ErrorCode.ExecutionFailure;
         }
 
@@ -237,25 +241,17 @@ partial class Azzy : HeroesPatch
             // Execute command if null check passed
             if (Activator.CreateInstance(commandType) is Command commandInstance)
             {
-                var originalInput = Console.In;
-                if (standardInput is not null)
-                {
-                    Console.SetIn(new StringReader(standardInput));
-                }
+                var commandContext = new CommandContext(
+                    standardInput is null ? Console.In : new StringReader(standardInput),
+                    context?.Output ?? Console.Out,
+                    context?.Error ?? Console.Error);
+                commandInstance.SetContext(commandContext);
 
-                try
-                {
-                    return commandInstance.Execute(resolvedCommand);
-                }
-                finally
-                {
-                    if (standardInput is not null)
-                        Console.SetIn(originalInput);
-                }
+                return commandInstance.Execute(resolvedCommand, commandContext);
             }
 
             // Log null check failure
-            PrintLine("Failed to create command instance.", Colours.Red);
+            Console.Error.WriteLine("Failed to create command instance.");
             return (int)ErrorCode.ExecutionFailure;
         }
 
@@ -277,7 +273,7 @@ partial class Azzy : HeroesPatch
 
         if (executablePath is null)
         {
-            PrintLine($"Failed to find the command `{command}` in path", Colours.Red);
+            Console.Error.WriteLine($"Failed to find the command `{command}` in path");
             return (int)ErrorCode.CommandNotFound;
         }
 
@@ -290,7 +286,7 @@ partial class Azzy : HeroesPatch
             foreach (var argument in resolvedCommand.Skip(1))
                 process.StartInfo.ArgumentList.Add(argument);
 
-            bool shouldRedirectStreams = forceCaptureStreams || Console.IsOutputRedirected || Console.IsErrorRedirected || standardInput is not null;
+            bool shouldRedirectStreams = forceCaptureStreams || context is not null || Console.IsOutputRedirected || Console.IsErrorRedirected || standardInput is not null;
             process.StartInfo.RedirectStandardOutput = shouldRedirectStreams;
             process.StartInfo.RedirectStandardError = shouldRedirectStreams;
             process.StartInfo.RedirectStandardInput = standardInput is not null;
@@ -313,10 +309,10 @@ partial class Azzy : HeroesPatch
                 process.WaitForExit();
 
                 if (!string.IsNullOrEmpty(output))
-                    Console.WriteLine(output);
+                    (context?.Output ?? Console.Out).Write(output);
 
                 if (!string.IsNullOrEmpty(error))
-                    Console.Error.WriteLine(error);
+                    (context?.Error ?? Console.Error).Write(error);
             }
             else
             {
@@ -327,7 +323,7 @@ partial class Azzy : HeroesPatch
         }
         catch (Exception ex)
         {
-            PrintLine($"[Error] Failed to run external command: {ex.Message}", Colours.Red);
+            Console.Error.WriteLine($"[Error] Failed to run external command: {ex.Message}");
             return (int)ErrorCode.CommandNotFound;
         }
     }
@@ -358,7 +354,7 @@ partial class Azzy : HeroesPatch
         {
             int blockDepth = ScriptEngine.GetBlockDepth(string.Join("\n", lines));
             string continuationPrompt = new string('\t', blockDepth) + "> ";
-            lines.Add(ReadInline(continuationPrompt, Colours.White));
+            lines.Add(ReadInline(continuationPrompt));
         }
 
         return string.Join("\n", lines);
@@ -382,8 +378,6 @@ partial class Azzy : HeroesPatch
     /// <returns>Raw prompt input</returns>
     private string Prompt()
     {
-        // Get colour and prompt from variables
-        string colourStr = GetVariable("colour") ?? "green";
         string promptStr = GetVariable("prompt") ?? "~";
 
         // Add status code if non-zero
@@ -391,19 +385,18 @@ partial class Azzy : HeroesPatch
         if (status != "0")
             promptStr = $"({status}) {promptStr}";
 
-        // Convert string colour to Heroes enum
-        if (!Enum.TryParse(colourStr, true, out Colours heroesColour))
-        {
-            heroesColour = Colours.Red; // Fallback on failure
-        }
-
-        // Read the current line with coloured prompt
-        string input = ReadInline(promptStr + " ", heroesColour);
+        string input = ReadInline(promptStr + " ");
 
         // Append to history
         AppendHistoryEntry(input);
 
         return input;
+    }
+
+    private static string ReadInline(string prompt)
+    {
+        Console.Write(prompt);
+        return Console.ReadLine() ?? string.Empty;
     }
 
 }

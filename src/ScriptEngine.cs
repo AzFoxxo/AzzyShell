@@ -2,6 +2,7 @@ namespace AzzyShell;
 
 using System.Globalization;
 using System.Text;
+using AzzyShell.Commands;
 
 internal enum ScriptTokenKind
 {
@@ -178,54 +179,46 @@ internal sealed class ScriptEngine
             return new CommandExecutionResult(directStatus, string.Empty, string.Empty);
         }
 
-        var originalInput = Console.In;
-        var originalOutput = Console.Out;
-        var originalError = Console.Error;
         var outputWriter = new StringWriter();
         var errorWriter = new StringWriter();
+        var context = new CommandContext(
+            new StringReader(redirectedInput ?? string.Empty),
+            outputWriter,
+            errorWriter);
 
-        try
+        int status = shell.ExecuteCommandArray(
+            arguments,
+            redirectedInput,
+            forceCaptureStreams: true,
+            context: context);
+        string standardOutput = outputWriter.ToString();
+        string standardError = errorWriter.ToString();
+
+        foreach (var redirect in commandNode.Redirects)
         {
-            Console.SetOut(outputWriter);
-            Console.SetError(errorWriter);
-            Console.SetIn(new StringReader(redirectedInput ?? string.Empty));
-
-            int status = shell.ExecuteCommandArray(arguments, redirectedInput, forceCaptureStreams: true);
-            string standardOutput = outputWriter.ToString();
-            string standardError = errorWriter.ToString();
-
-            foreach (var redirect in commandNode.Redirects)
+            switch (redirect.Kind)
             {
-                switch (redirect.Kind)
-                {
-                    case RedirectKind.Output:
-                        File.WriteAllText(redirect.Target, standardOutput);
-                        standardOutput = string.Empty;
-                        break;
-                    case RedirectKind.AppendOutput:
-                        File.AppendAllText(redirect.Target, standardOutput);
-                        standardOutput = string.Empty;
-                        break;
-                    case RedirectKind.Error:
-                        File.WriteAllText(redirect.Target, standardError);
-                        standardError = string.Empty;
-                        break;
-                    case RedirectKind.All:
-                        File.WriteAllText(redirect.Target, standardOutput + standardError);
-                        standardOutput = string.Empty;
-                        standardError = string.Empty;
-                        break;
-                }
+                case RedirectKind.Output:
+                    File.WriteAllText(redirect.Target, standardOutput);
+                    standardOutput = string.Empty;
+                    break;
+                case RedirectKind.AppendOutput:
+                    File.AppendAllText(redirect.Target, standardOutput);
+                    standardOutput = string.Empty;
+                    break;
+                case RedirectKind.Error:
+                    File.WriteAllText(redirect.Target, standardError);
+                    standardError = string.Empty;
+                    break;
+                case RedirectKind.All:
+                    File.WriteAllText(redirect.Target, standardOutput + standardError);
+                    standardOutput = string.Empty;
+                    standardError = string.Empty;
+                    break;
             }
+        }
 
-            return new CommandExecutionResult(status, standardOutput, standardError);
-        }
-        finally
-        {
-            Console.SetIn(originalInput);
-            Console.SetOut(originalOutput);
-            Console.SetError(originalError);
-        }
+        return new CommandExecutionResult(status, standardOutput, standardError);
     }
 
     private bool EvaluateCondition(IReadOnlyList<ScriptToken> tokens)

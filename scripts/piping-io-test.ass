@@ -1,0 +1,22 @@
+#!/usr/bin/azzyshell
+
+# Standard output through a pipeline
+log gay fox owo | sort
+log gay fox owo | sort desc
+
+# Built-in output from ls is newline-delimited when piped
+ls | sort
+ls | sort desc
+
+# Redirect standard output, standard error, and both streams
+log "stdout test" > piping-stdout.txt
+ls missing-directory 2> piping-stderr.txt
+ls missing-directory &> piping-all.txt
+
+# Read redirected standard output back through a pipeline
+cat piping-stdout.txt | sort
+
+# Cleanup test files
+remove piping-stdout.txt
+remove piping-stderr.txt
+remove piping-all.txt

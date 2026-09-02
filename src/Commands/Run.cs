@@ -2,7 +2,7 @@ namespace AzzyShell.Commands;
 
 class Run : Command
 {
-    public override int Execute(string[] args)
+    public override int Execute(string[] args, CommandContext context)
     {
         if (!IsArgumentLengthValid(args, 2))
             return (int)ErrorCode.InvalidArguments;
