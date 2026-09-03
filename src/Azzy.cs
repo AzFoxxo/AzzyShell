@@ -9,7 +9,7 @@ partial class Azzy
     private static Azzy? instance;
 
     // Constants
-    private const string version = "3.1.0";
+    private const string version = "3.1.1";
     private const string shell = "Azzy";
     private const string author = "Az Foxxo";
     private const string description = "A lightweight shell environment written in C#.";
@@ -217,7 +217,9 @@ partial class Azzy
         try
         {
             // Resolve variables and paths after alias expansion.
-            resolvedCommand = ResolveScriptTokens(resolvedCommand);
+            resolvedCommand = ResolveScriptTokens(resolvedCommand)
+                .Select(ScriptText.UnwrapLiteral)
+                .ToArray();
         }
         catch (Exception ex)
         {

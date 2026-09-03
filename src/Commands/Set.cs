@@ -4,11 +4,20 @@ class Set : Command
 {
     public override int Execute(string[] args, CommandContext context)
     {
-        if (!IsArgumentLengthValid(args, 3))
+        if (args.Length is < 2 or > 3)
+        {
+            PrintLine($"'{args[0]}' takes 1 or 2 argument(s), {args.Length - 1} argument(s) given.", Colours.Red);
             return (int)ErrorCode.InvalidArguments;
+        }
 
         string name = args[1];
-        string value = args[2];
+        if (args.Length == 2)
+        {
+            Shell.SetVariable(name, string.Empty, VariableType.Null.ToString());
+            return (int)ErrorCode.Success;
+        }
+
+        string value = ScriptText.UnwrapLiteral(args[2]);
 
         string type = DetectType(value).ToString();
 

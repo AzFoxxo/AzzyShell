@@ -58,7 +58,14 @@ internal sealed class ScriptEngine
 
     public static bool NeedsMoreInput(string script)
     {
-        return GetBlockDepth(script) > 0;
+        try
+        {
+            return GetBlockDepth(script) > 0;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
     }
 
     public static int GetBlockDepth(string script)
@@ -166,8 +173,9 @@ internal sealed class ScriptEngine
             if (redirect.Kind != RedirectKind.Input)
                 continue;
 
-            redirectedInput = File.Exists(redirect.Target)
-                ? File.ReadAllText(redirect.Target)
+            string target = ScriptText.UnwrapLiteral(shell.ResolveScriptTokens([redirect.Target])[0]);
+            redirectedInput = File.Exists(target)
+                ? File.ReadAllText(target)
                 : string.Empty;
         }
 
@@ -196,22 +204,24 @@ internal sealed class ScriptEngine
 
         foreach (var redirect in commandNode.Redirects)
         {
+            string target = ScriptText.UnwrapLiteral(shell.ResolveScriptTokens([redirect.Target])[0]);
+
             switch (redirect.Kind)
             {
                 case RedirectKind.Output:
-                    File.WriteAllText(redirect.Target, standardOutput);
+                    File.WriteAllText(target, standardOutput);
                     standardOutput = string.Empty;
                     break;
                 case RedirectKind.AppendOutput:
-                    File.AppendAllText(redirect.Target, standardOutput);
+                    File.AppendAllText(target, standardOutput);
                     standardOutput = string.Empty;
                     break;
                 case RedirectKind.Error:
-                    File.WriteAllText(redirect.Target, standardError);
+                    File.WriteAllText(target, standardError);
                     standardError = string.Empty;
                     break;
                 case RedirectKind.All:
-                    File.WriteAllText(redirect.Target, standardOutput + standardError);
+                    File.WriteAllText(target, standardOutput + standardError);
                     standardOutput = string.Empty;
                     standardError = string.Empty;
                     break;
@@ -606,7 +616,7 @@ internal sealed class ScriptEngine
                 return null;
 
             var token = Advance();
-            string resolved = shell.ResolveScriptTokens([token.Value])[0];
+            string resolved = ScriptText.UnwrapLiteral(shell.ResolveScriptTokens([token.Value])[0]);
 
             if (string.Equals(resolved, "null", StringComparison.OrdinalIgnoreCase))
                 return null;
@@ -865,7 +875,7 @@ internal static class ScriptTokenizer
             builder.Append(current);
         }
 
-        return new ScriptToken(ScriptTokenKind.String, ScriptText.MarkLiteral(builder.ToString()));
+        throw new ArgumentException("Unterminated string literal.");
     }
 
     private static bool TryReadOperator(string input, ref int index, out ScriptToken token)

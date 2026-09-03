@@ -79,7 +79,7 @@ internal static class ScriptArgumentResolver
 
         return open switch
         {
-            '{' => variable.Value,
+            '{' => ScriptText.UnwrapLiteral(variable.Value),
             '[' => variable.Type,
             '(' => variable.Name,
             '<' => shell.Variables.Keys.ToList().IndexOf(variable.Name).ToString(),
