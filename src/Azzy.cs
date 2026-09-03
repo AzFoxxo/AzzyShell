@@ -364,7 +364,7 @@ partial class Azzy
     /// Is the command running interactive
     /// </summary>
     /// <returns>True if command is interactive, else false</returns>
-    private bool IsCommandInteractive() => !Console.IsInputRedirected && !Console.IsOutputRedirected;
+    private bool IsCommandInteractive() => !Console.IsInputRedirected;
 
     /// <summary>
     /// Get the reference to the AzzyShell
@@ -393,10 +393,367 @@ partial class Azzy
         return input;
     }
 
-    private static string ReadInline(string prompt)
+    private string ReadInline(string prompt)
     {
+        if (!IsCommandInteractive())
+        {
+            Console.Write(prompt);
+            return Console.ReadLine() ?? string.Empty;
+        }
+
         Console.Write(prompt);
-        return Console.ReadLine() ?? string.Empty;
+        var input = new List<char>();
+        int cursor = 0;
+        int historyIndex = -1;
+        string draftInput = string.Empty;
+        bool completionDisplayed = false;
+        List<string>? completionOptions = null;
+        int completionSelection = -1;
+        int completionTokenStart = -1;
+
+        while (true)
+        {
+            var key = Console.ReadKey(intercept: true);
+
+            if (key.Key == ConsoleKey.Enter)
+            {
+                if (completionOptions is not null && completionSelection >= 0)
+                {
+                    input.RemoveRange(completionTokenStart, cursor - completionTokenStart);
+                    input.InsertRange(completionTokenStart, completionOptions[completionSelection]);
+                    cursor = completionTokenStart + completionOptions[completionSelection].Length;
+                    completionOptions = null;
+                    completionSelection = -1;
+                    completionTokenStart = -1;
+                    completionDisplayed = false;
+                    RedrawInput(prompt, input, cursor);
+                    continue;
+                }
+
+                Console.WriteLine();
+                return new string(input.ToArray());
+            }
+
+            if (key.Key == ConsoleKey.Tab)
+            {
+                if (completionOptions is not null)
+                {
+                    completionSelection = (completionSelection + 1) % completionOptions.Count;
+                    RenderCompletionMenu(prompt, input, cursor, completionOptions, completionSelection, menuExists: true);
+                    continue;
+                }
+
+                CompleteInput(prompt, input, ref cursor, ref completionDisplayed,
+                    ref completionOptions, ref completionSelection, ref completionTokenStart);
+                continue;
+            }
+
+            if (completionOptions is not null && key.Key is ConsoleKey.UpArrow or ConsoleKey.DownArrow)
+            {
+                completionSelection = key.Key == ConsoleKey.UpArrow
+                    ? (completionSelection - 1 + completionOptions.Count) % completionOptions.Count
+                    : (completionSelection + 1) % completionOptions.Count;
+                RenderCompletionMenu(prompt, input, cursor, completionOptions, completionSelection, menuExists: true);
+                continue;
+            }
+
+            completionDisplayed = false;
+            completionOptions = null;
+            completionSelection = -1;
+            completionTokenStart = -1;
+
+            if (key.Key == ConsoleKey.UpArrow)
+            {
+                if (historyEntries.Count > 0)
+                {
+                    if (historyIndex == -1)
+                        draftInput = new string(input.ToArray());
+
+                    historyIndex = Math.Min(historyIndex + 1, historyEntries.Count - 1);
+                    input = [.. historyEntries[historyEntries.Count - historyIndex - 1]];
+                    cursor = input.Count;
+                    RedrawInput(prompt, input, cursor);
+                }
+
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.DownArrow)
+            {
+                if (historyIndex >= 0)
+                {
+                    historyIndex--;
+                    input = historyIndex == -1
+                        ? [.. draftInput]
+                        : [.. historyEntries[historyEntries.Count - historyIndex - 1]];
+                    cursor = input.Count;
+                    RedrawInput(prompt, input, cursor);
+                }
+
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.Backspace)
+            {
+                historyIndex = -1;
+                if (cursor > 0)
+                {
+                    input.RemoveAt(--cursor);
+                    RedrawInput(prompt, input, cursor);
+                }
+
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.Delete)
+            {
+                historyIndex = -1;
+                if (cursor < input.Count)
+                {
+                    input.RemoveAt(cursor);
+                    RedrawInput(prompt, input, cursor);
+                }
+
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.LeftArrow)
+            {
+                if (cursor > 0)
+                {
+                    cursor--;
+                    Console.Write("\u001b[1D");
+                }
+
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.RightArrow)
+            {
+                if (cursor < input.Count)
+                {
+                    Console.Write(input[cursor++]);
+                }
+
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.Home)
+            {
+                cursor = 0;
+                RedrawInput(prompt, input, cursor);
+                continue;
+            }
+
+            if (key.Key == ConsoleKey.End)
+            {
+                cursor = input.Count;
+                RedrawInput(prompt, input, cursor);
+                continue;
+            }
+
+            if (!char.IsControl(key.KeyChar))
+            {
+                historyIndex = -1;
+                input.Insert(cursor++, key.KeyChar);
+                RedrawInput(prompt, input, cursor);
+            }
+        }
+    }
+
+    private void CompleteInput(
+        string prompt,
+        List<char> input,
+        ref int cursor,
+        ref bool completionDisplayed,
+        ref List<string>? completionOptions,
+        ref int completionSelection,
+        ref int completionTokenStart)
+    {
+        try
+        {
+            string currentInput = new(input.ToArray());
+            int tokenStart = cursor;
+            while (tokenStart > 0 && !char.IsWhiteSpace(input[tokenStart - 1]) &&
+                   !IsCommandSeparator(input[tokenStart - 1]))
+                tokenStart--;
+
+            string token = currentInput[tokenStart..cursor];
+            bool completingCommand = IsCommandPosition(currentInput, tokenStart);
+            var candidates = completingCommand
+                ? GetCommandCompletions(token)
+                : GetPathCompletions(token);
+
+            if (candidates.Count == 0)
+                return;
+
+            string commonPrefix = GetCommonPrefix(candidates);
+            bool showOptions = completionDisplayed || commonPrefix == token;
+            if (candidates.Count == 1 || (!completionDisplayed && commonPrefix.Length > token.Length))
+            {
+                input.RemoveRange(tokenStart, cursor - tokenStart);
+                input.InsertRange(tokenStart, candidates.Count == 1 ? candidates[0] : commonPrefix);
+                cursor = tokenStart + (candidates.Count == 1 ? candidates[0].Length : commonPrefix.Length);
+                completionDisplayed = candidates.Count > 1 && commonPrefix.Length > token.Length;
+                RedrawInput(prompt, input, cursor);
+            }
+
+            if (candidates.Count > 1 && showOptions)
+            {
+                completionOptions = candidates;
+                completionSelection = 0;
+                completionTokenStart = tokenStart;
+                RenderCompletionMenu(prompt, input, cursor, candidates, completionSelection, menuExists: false);
+                completionDisplayed = true;
+            }
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    private static bool IsCommandPosition(string input, int tokenStart)
+    {
+        string beforeToken = input[..tokenStart].TrimEnd();
+        return beforeToken.Length == 0 ||
+               beforeToken.EndsWith('|') ||
+               beforeToken.EndsWith("&&", StringComparison.Ordinal) ||
+               beforeToken.EndsWith("||", StringComparison.Ordinal) ||
+               beforeToken.EndsWith(';');
+    }
+
+    private static bool IsCommandSeparator(char character) => character is '|' or '&' or ';';
+
+    private static void RenderCompletionMenu(
+        string prompt,
+        List<char> input,
+        int cursor,
+        IReadOnlyList<string> options,
+        int selected,
+        bool menuExists)
+    {
+        if (menuExists)
+            Console.Write($"\u001b[{options.Count}A");
+        else
+            Console.WriteLine();
+
+        for (int index = 0; index < options.Count; index++)
+        {
+            Console.Write("\r\u001b[K");
+            Console.Write(index == selected ? "> " : "  ");
+            Console.Write(options[index]);
+            Console.WriteLine();
+        }
+
+        Console.Write("\r\u001b[K");
+        Console.Write(prompt);
+        Console.Write(new string(input.ToArray()));
+        int charactersAfterCursor = input.Count - cursor;
+        if (charactersAfterCursor > 0)
+            Console.Write($"\u001b[{charactersAfterCursor}D");
+    }
+
+    private List<string> GetCommandCompletions(string prefix)
+    {
+        var commands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+        {
+            if (typeof(Command).IsAssignableFrom(type) && !type.IsAbstract && type.Namespace == "AzzyShell.Commands")
+                commands.Add(type.Name.ToLowerInvariant());
+        }
+
+        foreach (string alias in Aliases.Keys)
+            commands.Add(alias);
+
+        string pathVar = GetVariable("path") ?? "/bin:/usr/bin";
+        foreach (string path in pathVar.Split(':', StringSplitOptions.RemoveEmptyEntries))
+        {
+            try
+            {
+                foreach (string file in Directory.EnumerateFiles(path))
+                {
+                    if (!OperatingSystem.IsWindows() &&
+                        (File.GetUnixFileMode(file).HasFlag(UnixFileMode.UserExecute) ||
+                         File.GetUnixFileMode(file).HasFlag(UnixFileMode.GroupExecute) ||
+                         File.GetUnixFileMode(file).HasFlag(UnixFileMode.OtherExecute)))
+                    {
+                        commands.Add(Path.GetFileName(file));
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                // An unreadable PATH entry should not break input editing.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // An inaccessible PATH entry should not break input editing.
+            }
+        }
+
+        return commands
+            .Where(command => command.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(command => command, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static List<string> GetPathCompletions(string token)
+    {
+        string expandedToken = token.StartsWith("~/", StringComparison.Ordinal)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), token[2..])
+            : token;
+        string directory = Path.GetDirectoryName(expandedToken) ?? ".";
+        string namePrefix = Path.GetFileName(expandedToken);
+
+        try
+        {
+            return Directory.EnumerateFileSystemEntries(directory)
+                .Where(path => Path.GetFileName(path).StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase))
+                .Select(path =>
+                {
+                    string completedPath = Path.Combine(Path.GetDirectoryName(token) ?? string.Empty, Path.GetFileName(path));
+                    return Directory.Exists(path) ? completedPath + Path.DirectorySeparatorChar : completedPath;
+                })
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch (IOException)
+        {
+            return [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return [];
+        }
+    }
+
+    private static string GetCommonPrefix(IReadOnlyList<string> candidates)
+    {
+        string prefix = candidates[0];
+        for (int index = 1; index < candidates.Count; index++)
+        {
+            int length = 0;
+            while (length < prefix.Length && length < candidates[index].Length &&
+                   char.ToUpperInvariant(prefix[length]) == char.ToUpperInvariant(candidates[index][length]))
+            {
+                length++;
+            }
+
+            prefix = prefix[..length];
+        }
+
+        return prefix;
+    }
+
+    private static void RedrawInput(string prompt, List<char> input, int cursor)
+    {
+        string text = new(input.ToArray());
+        Console.Write($"\r{prompt}{text}\u001b[K");
+
+        int charactersAfterCursor = text.Length - cursor;
+        if (charactersAfterCursor > 0)
+            Console.Write($"\u001b[{charactersAfterCursor}D");
     }
 
 }
